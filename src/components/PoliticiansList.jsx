@@ -102,7 +102,11 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
 
   useEffect(() => { charger() }, [typeMandat, filtreBord, page])
 
-  const elusFiltres = filtreCondamne ? elus.filter(e => e.condamne) : elus
+  const [filtreCumul, setFiltreCumul] = useState(false)
+
+  const elusFiltres = elus
+    .filter(e => !filtreCondamne || e.condamne)
+    .filter(e => !filtreCumul   || (e.type_mandats || []).length > 1)
 
   return (
     <div>
@@ -149,6 +153,18 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
           >
             ⚖️ Condamnés
           </span>
+          <span
+            onClick={() => { setFiltreCumul(!filtreCumul); setPage(1) }}
+            style={{
+              padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
+              background: filtreCumul ? "#FAEEDA" : "#f0f0ee",
+              color: filtreCumul ? "#633806" : "#555",
+              border: filtreCumul ? "0.5px solid #E8A838" : "0.5px solid transparent",
+              display: "inline-flex", alignItems: "center", gap: 5,
+            }}
+          >
+            🗂️ Cumul de mandats
+          </span>
         </div>
       </div>
 
@@ -191,6 +207,7 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
       <div style={{ fontSize: 12, color: "#999", marginBottom: 12 }}>
         {loading ? "Chargement..." : `${elusFiltres.length} élu${elusFiltres.length > 1 ? "s" : ""} affiché${elusFiltres.length > 1 ? "s" : ""}`}
         {filtreCondamne && <span style={{ color: "#A32D2D", marginLeft: 8 }}>⚖️ filtre condamnés actif</span>}
+        {filtreCumul    && <span style={{ color: "#633806", marginLeft: 8 }}>🗂️ filtre cumul actif</span>}
       </div>
 
       {/* Grille */}

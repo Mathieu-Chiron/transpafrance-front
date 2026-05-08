@@ -57,8 +57,8 @@ export default function App() {
 
       {/* Header */}
       <div style={{ marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>Politico</h1>
-        <p style={{ fontSize: 14, color: "#666" }}>Base de données des personnalités politiques françaises</p>
+        <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>Transpafrance</h1>
+        <p style={{ fontSize: 14, color: "#666" }}>Base de données des représentants du peuple français</p>
       </div>
 
       {/* Barre de recherche */}
