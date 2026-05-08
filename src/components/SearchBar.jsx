@@ -1,14 +1,20 @@
 import { useState } from "react"
 
-const FILTRES_PARTI = ["RN", "LR", "Renaissance", "LFI", "PS", "EELV"]
-const FILTRES_SPEC  = ["Condamné", "Cumul de mandats", "Élu européen", "Droite", "Gauche"]
+const FILTRES = [
+  { id: "depute",    label: "Députés",    icon: "🏛️", type: "fonction" },
+  { id: "senateur",  label: "Sénateurs",  icon: "📜", type: "fonction" },
+  { id: "maire",     label: "Maires",     icon: "🎖️", type: "fonction" },
+  { id: "europeen",  label: "Européens",  icon: "🇪🇺", type: "fonction" },
+  { id: "condamne",  label: "Condamnés",  icon: "⚖️", type: "caracteristique" },
+  { id: "cumul",     label: "Cumul",      icon: "🗂️", type: "caracteristique" },
+]
 
 export default function SearchBar({ onSearch }) {
   const [input, setInput]   = useState("")
   const [actifs, setActifs] = useState([])
 
-  const toggleFiltre = (f) => {
-    setActifs(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
+  const toggleFiltre = (id) => {
+    setActifs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
   const handleKey = (e) => {
@@ -43,28 +49,45 @@ export default function SearchBar({ onSearch }) {
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
         <span style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Filtres</span>
-        {[...FILTRES_SPEC, ...FILTRES_PARTI].map(f => {
-          const isActif = actifs.includes(f)
-          const isDanger = f === "Condamné"
+
+        {/* Séparateur fonction */}
+        <span style={{ fontSize: 10, color: "#bbb", marginRight: 2 }}>Fonction</span>
+        {FILTRES.filter(f => f.type === "fonction").map(f => {
+          const isActif = actifs.includes(f.id)
           return (
             <span
-              key={f}
-              onClick={() => toggleFiltre(f)}
+              key={f.id}
+              onClick={() => toggleFiltre(f.id)}
               style={{
                 padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
-                border: isActif
-                  ? (isDanger ? "0.5px solid #E24B4A" : "0.5px solid #378ADD")
-                  : "0.5px solid #ddd",
-                background: isActif
-                  ? (isDanger ? "#FCEBEB" : "#E6F1FB")
-                  : "#fff",
-                color: isActif
-                  ? (isDanger ? "#791F1F" : "#0C447C")
-                  : "#666",
+                border: isActif ? "0.5px solid #378ADD" : "0.5px solid #ddd",
+                background: isActif ? "#E6F1FB" : "#fff",
+                color: isActif ? "#0C447C" : "#666",
                 transition: "all 0.15s"
               }}
             >
-              {f}
+              {f.icon} {f.label}
+            </span>
+          )
+        })}
+
+        {/* Séparateur caractéristiques */}
+        <span style={{ fontSize: 10, color: "#bbb", marginLeft: 4, marginRight: 2 }}>Caractéristiques</span>
+        {FILTRES.filter(f => f.type === "caracteristique").map(f => {
+          const isActif = actifs.includes(f.id)
+          return (
+            <span
+              key={f.id}
+              onClick={() => toggleFiltre(f.id)}
+              style={{
+                padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
+                border: isActif ? "0.5px solid #E24B4A" : "0.5px solid #ddd",
+                background: isActif ? "#FCEBEB" : "#fff",
+                color: isActif ? "#791F1F" : "#666",
+                transition: "all 0.15s"
+              }}
+            >
+              {f.icon} {f.label}
             </span>
           )
         })}
