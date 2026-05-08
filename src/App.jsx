@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import SearchBar from "./components/SearchBar"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
@@ -8,15 +8,18 @@ export default function App() {
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState(null)
   const [activeTab, setActiveTab] = useState("condamnations")
-  const [vue, setVue]             = useState("liste") // "liste" ou "fiche"
+  const [vue, setVue]             = useState("liste")
 
-  const search = async (name) => {
+  const search = async (name, pushState = true) => {
     if (!name.trim()) return
     setLoading(true)
     setError(null)
     setResult(null)
     setActiveTab("condamnations")
     setVue("fiche")
+    if (pushState) {
+      window.history.pushState({name}, "", `?name=${encodeURIComponent(name)}`)
+    }
     try {
       const res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
       if (!res.ok) throw new Error("Erreur serveur")
@@ -28,6 +31,25 @@ export default function App() {
       setLoading(false)
     }
   }
+
+  // Charge depuis l'URL au démarrage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const name   = params.get("name")
+    if (name) search(name, false)
+  }, [])
+
+  // Gère le bouton retour du navigateur
+  useEffect(() => {
+    const onPop = (e) => {
+      const params = new URLSearchParams(window.location.search)
+      const name   = params.get("name")
+      if (name) search(name, false)
+      else { setResult(null); setVue("liste") }
+    }
+    window.addEventListener("popstate", onPop)
+    return () => window.removeEventListener("popstate", onPop)
+  }, [])
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
