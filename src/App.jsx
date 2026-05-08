@@ -9,6 +9,7 @@ export default function App() {
   const [error, setError]         = useState(null)
   const [activeTab, setActiveTab] = useState("condamnations")
   const [vue, setVue]             = useState("liste")
+  const [filtres, setFiltres]     = useState([])
 
   const search = async (name, pushState = true) => {
     if (!name.trim()) return
@@ -61,7 +62,7 @@ export default function App() {
       </div>
 
       {/* Barre de recherche */}
-      <SearchBar onSearch={search} />
+      <SearchBar onSearch={search} onFilterChange={setFiltres} />
 
       {/* Tabs vue */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -104,7 +105,7 @@ export default function App() {
 
       {/* Vue liste */}
       {vue === "liste" && !loading && (
-        <PoliticiansList onSelect={(nom) => search(nom)} />
+        <PoliticiansList onSelect={(nom) => search(nom)} filtresActifs={filtres} />
       )}
 
       {/* Vue fiche */}

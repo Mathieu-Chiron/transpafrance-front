@@ -4,6 +4,7 @@ const TYPES_MANDAT = [
   { id: "depute",   label: "Députés",   icon: "🏛️" },
   { id: "senateur", label: "Sénateurs", icon: "📜" },
   { id: "maire",    label: "Maires",    icon: "🎖️" },
+  { id: "europeen", label: "Européens", icon: "🇪🇺" },
 ]
 
 const FILTRES_BORD = [
@@ -13,9 +14,10 @@ const FILTRES_BORD = [
 
 function BadgeFonction({ type }) {
   const map = {
-    depute:   { icon: "🏛️", label: "Député",   bg: "#EEF4FF", color: "#1a3a6b" },
-    senateur: { icon: "📜", label: "Sénateur", bg: "#F5F0FF", color: "#4a1a8b" },
-    maire:    { icon: "🎖️", label: "Maire",    bg: "#FFF8EE", color: "#7a4a00" },
+    depute:   { icon: "🏛️", label: "Député",    bg: "#EEF4FF", color: "#1a3a6b" },
+    senateur: { icon: "📜", label: "Sénateur",  bg: "#F5F0FF", color: "#4a1a8b" },
+    maire:    { icon: "🎖️", label: "Maire",     bg: "#FFF8EE", color: "#7a4a00" },
+    europeen: { icon: "🇪🇺", label: "Européen", bg: "#EEF9F0", color: "#1a5c2a" },
   }
   const b = map[type] || { icon: "👤", label: type, bg: "#f0f0ee", color: "#555" }
   return (
@@ -46,7 +48,7 @@ function BadgeCaracteristique({ type, count }) {
   )
 }
 
-export default function PoliticiansList({ onSelect }) {
+export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
   const [elus, setElus]                     = useState([])
   const [loading, setLoading]               = useState(false)
   const [typeMandat, setTypeMandat]         = useState("depute")
@@ -55,6 +57,15 @@ export default function PoliticiansList({ onSelect }) {
   const [page, setPage]                     = useState(1)
 
   const PAGE_SIZE = 50
+
+  // Sync depuis les filtres de la SearchBar
+  useEffect(() => {
+    const types = ["depute", "senateur", "maire"]
+    const type  = filtresActifs.find(f => types.includes(f))
+    if (type) setTypeMandat(type)
+    setFiltreCondamne(filtresActifs.includes("condamne"))
+    setPage(1)
+  }, [filtresActifs])
 
   const charger = async () => {
     setLoading(true)
@@ -109,7 +120,7 @@ export default function PoliticiansList({ onSelect }) {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <span
-            onClick={() => setFiltreCondamne(!filtreCondamne)}
+            onClick={() => { setFiltreCondamne(!filtreCondamne); setPage(1) }}
             style={{
               padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
               background: filtreCondamne ? "#FCEBEB" : "#f0f0ee",
@@ -130,7 +141,7 @@ export default function PoliticiansList({ onSelect }) {
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span
-            onClick={() => setFiltreBord("")}
+            onClick={() => { setFiltreBord(""); setPage(1) }}
             style={{
               padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
               background: !filtreBord ? "#1a1a1a" : "#f0f0ee",
@@ -142,7 +153,7 @@ export default function PoliticiansList({ onSelect }) {
           {FILTRES_BORD.map(b => (
             <span
               key={b}
-              onClick={() => setFiltreBord(filtreBord === b ? "" : b)}
+              onClick={() => { setFiltreBord(filtreBord === b ? "" : b); setPage(1) }}
               style={{
                 padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
                 background: filtreBord === b ? "#E6F1FB" : "#f0f0ee",
@@ -183,9 +194,9 @@ export default function PoliticiansList({ onSelect }) {
               {elu.prenom} {elu.nom_famille}
             </div>
 
-            {/* Département */}
+            {/* Localisation */}
             <div style={{ fontSize: 11, color: "#999", marginBottom: 8 }}>
-              {elu.departement}
+              {elu.commune ? `${elu.commune}${elu.departement ? ` (${elu.departement})` : ""}` : elu.departement}
               {elu.bord && <span style={{ marginLeft: 6 }}>· {elu.bord}</span>}
             </div>
 

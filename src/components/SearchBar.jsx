@@ -9,12 +9,14 @@ const FILTRES = [
   { id: "cumul",     label: "Cumul",      icon: "🗂️", type: "caracteristique" },
 ]
 
-export default function SearchBar({ onSearch }) {
+export default function SearchBar({ onSearch, onFilterChange }) {
   const [input, setInput]   = useState("")
   const [actifs, setActifs] = useState([])
 
   const toggleFiltre = (id) => {
-    setActifs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+    const next = actifs.includes(id) ? actifs.filter(x => x !== id) : [...actifs, id]
+    setActifs(next)
+    onFilterChange?.(next)
   }
 
   const handleKey = (e) => {
