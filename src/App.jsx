@@ -1,0 +1,98 @@
+import { useState } from "react"
+import SearchBar from "./components/SearchBar"
+import PoliticianDetail from "./components/PoliticianDetail"
+import PoliticiansList from "./components/PoliticiansList"
+
+export default function App() {
+  const [result, setResult]       = useState(null)
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState(null)
+  const [activeTab, setActiveTab] = useState("condamnations")
+  const [vue, setVue]             = useState("liste") // "liste" ou "fiche"
+
+  const search = async (name) => {
+    if (!name.trim()) return
+    setLoading(true)
+    setError(null)
+    setResult(null)
+    setActiveTab("condamnations")
+    setVue("fiche")
+    try {
+      const res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
+      if (!res.ok) throw new Error("Erreur serveur")
+      const data = await res.json()
+      setResult(data)
+    } catch (e) {
+      setError("Impossible de contacter l'API. Vérifiez que le serveur FastAPI tourne.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>Politico</h1>
+        <p style={{ fontSize: 14, color: "#666" }}>Base de données des personnalités politiques françaises</p>
+      </div>
+
+      {/* Barre de recherche */}
+      <SearchBar onSearch={search} />
+
+      {/* Tabs vue */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <span
+          onClick={() => setVue("liste")}
+          style={{
+            padding: "5px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
+            background: vue === "liste" ? "#1a1a1a" : "#f0f0ee",
+            color: vue === "liste" ? "#fff" : "#555",
+          }}
+        >
+          Liste des élus
+        </span>
+        <span
+          onClick={() => result && setVue("fiche")}
+          style={{
+            padding: "5px 14px", borderRadius: 999, fontSize: 13,
+            cursor: result ? "pointer" : "default",
+            background: vue === "fiche" ? "#1a1a1a" : "#f0f0ee",
+            color: vue === "fiche" ? "#fff" : result ? "#555" : "#bbb",
+          }}
+        >
+          Fiche détaillée {result ? `— ${result.recherche}` : ""}
+        </span>
+      </div>
+
+      {/* Erreur */}
+      {error && (
+        <div style={{ background: "#FCEBEB", border: "0.5px solid #E24B4A", borderRadius: 8, padding: "12px 16px", color: "#791F1F", fontSize: 14, marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>
+          Recherche en cours...
+        </div>
+      )}
+
+      {/* Vue liste */}
+      {vue === "liste" && !loading && (
+        <PoliticiansList onSelect={(nom) => search(nom)} />
+      )}
+
+      {/* Vue fiche */}
+      {vue === "fiche" && result && !loading && (
+        <PoliticianDetail
+          result={result}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      )}
+    </div>
+  )
+}

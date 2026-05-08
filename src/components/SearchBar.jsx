@@ -1,0 +1,74 @@
+import { useState } from "react"
+
+const FILTRES_PARTI = ["RN", "LR", "Renaissance", "LFI", "PS", "EELV"]
+const FILTRES_SPEC  = ["Condamné", "Cumul de mandats", "Élu européen", "Droite", "Gauche"]
+
+export default function SearchBar({ onSearch }) {
+  const [input, setInput]   = useState("")
+  const [actifs, setActifs] = useState([])
+
+  const toggleFiltre = (f) => {
+    setActifs(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
+  }
+
+  const handleKey = (e) => {
+    if (e.key === "Enter") onSearch(input)
+  }
+
+  return (
+    <div style={{ marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder="Rechercher un élu... ex: Marine Le Pen"
+          style={{
+            flex: 1, padding: "10px 14px",
+            border: "0.5px solid #ccc", borderRadius: 8,
+            fontSize: 15, outline: "none"
+          }}
+        />
+        <button
+          onClick={() => onSearch(input)}
+          style={{
+            padding: "10px 20px", borderRadius: 8,
+            border: "0.5px solid #ccc", background: "#fff",
+            fontSize: 14, fontWeight: 500, cursor: "pointer"
+          }}
+        >
+          Rechercher
+        </button>
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+        <span style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>Filtres</span>
+        {[...FILTRES_SPEC, ...FILTRES_PARTI].map(f => {
+          const isActif = actifs.includes(f)
+          const isDanger = f === "Condamné"
+          return (
+            <span
+              key={f}
+              onClick={() => toggleFiltre(f)}
+              style={{
+                padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
+                border: isActif
+                  ? (isDanger ? "0.5px solid #E24B4A" : "0.5px solid #378ADD")
+                  : "0.5px solid #ddd",
+                background: isActif
+                  ? (isDanger ? "#FCEBEB" : "#E6F1FB")
+                  : "#fff",
+                color: isActif
+                  ? (isDanger ? "#791F1F" : "#0C447C")
+                  : "#666",
+                transition: "all 0.15s"
+              }}
+            >
+              {f}
+            </span>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
