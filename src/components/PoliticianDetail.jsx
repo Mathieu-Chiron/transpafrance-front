@@ -178,7 +178,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
           { label: "Mandats cumulés", value: md?.nombre_mandats ?? "—", color: "#854F0B" },
           { label: "Parti / Groupe", value: id.groupe_parlementaire || id.parti || "—", color: "#333", small: true },
         ].map(s => (
-          <div key={s.label} style={{ background: "#f7f7f5", borderRadius: 8, padding: "10px 12px" }}>
+          <div key={s.label} style={{ background: "#fafaf8", borderRadius: 8, padding: "10px 12px" }}>
             <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{s.label}</div>
             <div style={{ fontSize: s.small ? 12 : 18, fontWeight: 500, color: s.color, lineHeight: 1.3 }}>{s.value}</div>
           </div>

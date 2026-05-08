@@ -57,8 +57,18 @@ export default function App() {
 
       {/* Header */}
       <div style={{ marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>Transpafrance</h1>
-        <p style={{ fontSize: 14, color: "#666" }}>Base de données des représentants du peuple français</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+          {/* Tricolore vertical */}
+          <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#0055A4" }} />
+            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#DDDDDD" }} />
+            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#EF4135" }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: 26, fontWeight: 600, lineHeight: 1.1 }}>Transpafrance</h1>
+            <p style={{ fontSize: 13, color: "#888", marginTop: 2 }}>Base de données des représentants du peuple français</p>
+          </div>
+        </div>
       </div>
 
       {/* Barre de recherche */}
@@ -68,9 +78,10 @@ export default function App() {
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
         <span
           onClick={() => setVue("liste")}
+          className="chip"
           style={{
-            padding: "5px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
-            background: vue === "liste" ? "#1a1a1a" : "#f0f0ee",
+            padding: "5px 14px", borderRadius: 999, fontSize: 13,
+            background: vue === "liste" ? "#0055A4" : "#f4f4f2",
             color: vue === "liste" ? "#fff" : "#555",
           }}
         >
@@ -78,10 +89,11 @@ export default function App() {
         </span>
         <span
           onClick={() => result && setVue("fiche")}
+          className="chip"
           style={{
             padding: "5px 14px", borderRadius: 999, fontSize: 13,
             cursor: result ? "pointer" : "default",
-            background: vue === "fiche" ? "#1a1a1a" : "#f0f0ee",
+            background: vue === "fiche" ? "#0055A4" : "#f4f4f2",
             color: vue === "fiche" ? "#fff" : result ? "#555" : "#bbb",
           }}
         >

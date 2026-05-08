@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { BORD_COULEUR } from "../bordCouleur"
+import { BORD_COULEUR, hoverBord } from "../bordCouleur"
 
 const TYPES_MANDAT = [
   { id: "depute",   label: "Députés",   icon: "🏛️" },
@@ -37,7 +37,7 @@ function BadgeFonction({ type }) {
     maire:    { icon: "🎖️", label: "Maire",     bg: "#FFF8EE", color: "#7a4a00" },
     europeen: { icon: "🇪🇺", label: "Européen", bg: "#EEF9F0", color: "#1a5c2a" },
   }
-  const b = map[type] || { icon: "👤", label: type, bg: "#f0f0ee", color: "#555" }
+  const b = map[type] || { icon: "👤", label: type, bg: "#f4f4f2", color: "#555" }
   return (
     <span style={{
       fontSize: 11, padding: "2px 8px", borderRadius: 999,
@@ -120,10 +120,11 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
           {TYPES_MANDAT.map(m => (
             <span
               key={m.id}
+              className="chip"
               onClick={() => { setTypeMandat(m.id); setPage(1) }}
               style={{
-                padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
-                background: typeMandat === m.id ? "#1a1a1a" : "#f0f0ee",
+                padding: "6px 14px", borderRadius: 999, fontSize: 13,
+                background: typeMandat === m.id ? "#0055A4" : "#f4f4f2",
                 color: typeMandat === m.id ? "#fff" : "#555",
                 fontWeight: typeMandat === m.id ? 500 : 400,
                 display: "inline-flex", alignItems: "center", gap: 5,
@@ -142,25 +143,29 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <span
+            className="chip"
             onClick={() => { setFiltreCondamne(!filtreCondamne); setPage(1) }}
             style={{
-              padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
-              background: filtreCondamne ? "#FCEBEB" : "#f0f0ee",
+              padding: "6px 14px", borderRadius: 999, fontSize: 13,
+              background: filtreCondamne ? "#FCEBEB" : "#f4f4f2",
               color: filtreCondamne ? "#791F1F" : "#555",
               border: filtreCondamne ? "0.5px solid #E24B4A" : "0.5px solid transparent",
               display: "inline-flex", alignItems: "center", gap: 5,
+              "--hover-bg": "#fde8e8",
             }}
           >
             ⚖️ Condamnés
           </span>
           <span
+            className="chip"
             onClick={() => { setFiltreCumul(!filtreCumul); setPage(1) }}
             style={{
-              padding: "6px 14px", borderRadius: 999, fontSize: 13, cursor: "pointer",
-              background: filtreCumul ? "#FAEEDA" : "#f0f0ee",
+              padding: "6px 14px", borderRadius: 999, fontSize: 13,
+              background: filtreCumul ? "#FAEEDA" : "#f4f4f2",
               color: filtreCumul ? "#633806" : "#555",
               border: filtreCumul ? "0.5px solid #E8A838" : "0.5px solid transparent",
               display: "inline-flex", alignItems: "center", gap: 5,
+              "--hover-bg": "#faeedd",
             }}
           >
             🗂️ Cumul de mandats
@@ -175,10 +180,11 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span
+            className="chip"
             onClick={() => { setFiltreBord(""); setPage(1) }}
             style={{
-              padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
-              background: !filtreBord ? "#1a1a1a" : "#f0f0ee",
+              padding: "4px 12px", borderRadius: 999, fontSize: 12,
+              background: !filtreBord ? "#0055A4" : "#f4f4f2",
               color: !filtreBord ? "#fff" : "#555",
             }}
           >
@@ -187,13 +193,15 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
           {FILTRES_BORD.map(b => (
             <span
               key={b}
+              className="chip"
               onClick={() => { setFiltreBord(filtreBord === b ? "" : b); setPage(1) }}
               style={{
-                padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
-                background: filtreBord === b ? "#E6F1FB" : "#f0f0ee",
+                padding: "4px 12px", borderRadius: 999, fontSize: 12,
+                background: filtreBord === b ? "#E6F1FB" : "#f4f4f2",
                 color: filtreBord === b ? "#0C447C" : "#555",
                 border: filtreBord === b ? "0.5px solid #378ADD" : "0.5px solid transparent",
                 display: "inline-flex", alignItems: "center", gap: 5,
+                "--hover-bg": hoverBord(BORD_COULEUR[b]),
               }}
             >
               <PastilleBord bord={b} size={8} />

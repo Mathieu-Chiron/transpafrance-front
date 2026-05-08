@@ -54,13 +54,13 @@ export default function SearchBar({ onSearch, onFilterChange }) {
           return (
             <span
               key={f.id}
+              className="chip"
               onClick={() => toggleFiltre(f.id)}
               style={{
-                padding: "4px 12px", borderRadius: 999, fontSize: 12, cursor: "pointer",
+                padding: "4px 12px", borderRadius: 999, fontSize: 12,
                 border: isActif ? "0.5px solid #378ADD" : "0.5px solid #ddd",
                 background: isActif ? "#E6F1FB" : "#fff",
                 color: isActif ? "#0C447C" : "#666",
-                transition: "all 0.15s"
               }}
             >
               {f.icon} {f.label}
