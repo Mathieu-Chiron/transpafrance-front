@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { BORD_COULEUR } from "../bordCouleur"
 
 const TYPES_MANDAT = [
   { id: "depute",   label: "Députés",   icon: "🏛️" },
@@ -7,10 +8,27 @@ const TYPES_MANDAT = [
   { id: "europeen", label: "Européens", icon: "🇪🇺" },
 ]
 
+
 const FILTRES_BORD = [
-  "Gauche radicale", "Gauche", "Centre gauche",
-  "Centre", "Centre droit", "Droite", "Extrême droite"
+  "Extrême gauche", "Gauche radicale", "Gauche", "Centre gauche",
+  "Centre", "Centre droit", "Droite", "Droite nationale", "Extrême droite"
 ]
+
+const BORD_CARRE = new Set(["Extrême gauche", "Extrême droite"])
+
+function PastilleBord({ bord, size = 9 }) {
+  const color = BORD_COULEUR[bord]
+  if (!color) return null
+  return (
+    <span style={{
+      display: "inline-block",
+      width: size, height: size,
+      borderRadius: BORD_CARRE.has(bord) ? 2 : "50%",
+      background: color,
+      flexShrink: 0,
+    }} />
+  )
+}
 
 function BadgeFonction({ type }) {
   const map = {
@@ -159,8 +177,10 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
                 background: filtreBord === b ? "#E6F1FB" : "#f0f0ee",
                 color: filtreBord === b ? "#0C447C" : "#555",
                 border: filtreBord === b ? "0.5px solid #378ADD" : "0.5px solid transparent",
+                display: "inline-flex", alignItems: "center", gap: 5,
               }}
             >
+              <PastilleBord bord={b} size={8} />
               {b}
             </span>
           ))}
@@ -197,12 +217,21 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
             {/* Localisation */}
             <div style={{ fontSize: 11, color: "#999", marginBottom: 8 }}>
               {elu.commune ? `${elu.commune}${elu.departement ? ` (${elu.departement})` : ""}` : elu.departement}
-              {elu.bord && <span style={{ marginLeft: 6 }}>· {elu.bord}</span>}
             </div>
+
+            {/* Bord politique */}
+            {elu.bord && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: "#666", marginBottom: 8 }}>
+                <PastilleBord bord={elu.bord} size={8} />
+                {elu.bord}
+              </div>
+            )}
 
             {/* Badges */}
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-              <BadgeFonction type={elu.type_mandat} />
+              {(elu.type_mandats || [elu.type_mandat]).map(t => (
+                <BadgeFonction key={t} type={t} />
+              ))}
               {elu.condamne && <BadgeCaracteristique type="condamne" count={elu.nb_condamnations} />}
             </div>
           </div>

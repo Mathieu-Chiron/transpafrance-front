@@ -1,3 +1,5 @@
+import { BORD_COULEUR } from "../bordCouleur"
+
 const TABS = [
   { id: "condamnations", label: "Condamnations" },
   { id: "votes",         label: "Votes" },
@@ -116,11 +118,17 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
   const icons = [
     nbCondamnations > 0 && { emoji: "⛓️", title: `${nbCondamnations} condamnation${nbCondamnations > 1 ? "s" : ""}` },
     isEuroDepute       && { emoji: "🇪🇺", title: "Député européen" },
-    hasCumul           && { emoji: "🗂️", title: "Cumul de mandats" },
   ].filter(Boolean)
 
   return (
-    <div style={{ background: "#fff", border: "0.5px solid #ddd", borderRadius: 12, padding: "1.25rem", marginTop: "1.5rem" }}>
+    <div style={{ background: "#fff", border: "0.5px solid #ddd", borderRadius: 12, padding: "1.25rem", marginTop: "1.5rem", position: "relative" }}>
+
+      {hasCumul && (
+        <span title="Cumul de mandats" style={{
+          position: "absolute", top: "1rem", right: "1rem",
+          fontSize: 20, cursor: "default", lineHeight: 1,
+        }}>🗂️</span>
+      )}
 
       <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: "1.25rem", paddingBottom: "1rem", borderBottom: "0.5px solid #eee" }}>
         {id.photo
@@ -136,11 +144,28 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
           </div>
           <div style={{ fontSize: 13, color: "#666", marginBottom: 8 }}>
             {id.naissance && `né(e) le ${id.naissance}`}
-            {id.naissance && id.parti && " · "}
-            {id.parti}
+            {id.naissance && id.profession && " · "}
+            {id.profession}
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {id.parti && <Badge label={id.parti} type="parti" />}
+            {(id.groupe_parlementaire || id.parti) && (
+              <span style={{
+                fontSize: 11, padding: "2px 8px", borderRadius: 999,
+                background: "#E6F1FB", color: "#0C447C",
+                display: "inline-flex", alignItems: "center", gap: 5,
+              }}>
+                {id.bord_politique && (
+                  <span style={{
+                    width: 7, height: 7, borderRadius: "50%", display: "inline-block", flexShrink: 0,
+                    background: BORD_COULEUR[id.bord_politique] || "#999",
+                  }} />
+                )}
+                {id.groupe_parlementaire || id.parti}
+              </span>
+            )}
+            {id.groupe_parlementaire && id.parti && id.groupe_parlementaire !== id.parti && (
+              <Badge label={id.parti} type="parti" />
+            )}
             {nbCondamnations > 0 && <Badge label={`${nbCondamnations} condamnation${nbCondamnations > 1 ? "s" : ""}`} type="condamne" />}
             {md?.cumul_mandats && <Badge label="Cumul de mandats" type="cumul" />}
           </div>
@@ -151,11 +176,11 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
         {[
           { label: "Condamnations", value: nbCondamnations, color: nbCondamnations > 0 ? "#A32D2D" : "#333" },
           { label: "Mandats cumulés", value: md?.nombre_mandats ?? "—", color: "#854F0B" },
-          { label: "Parti", value: id.parti?.split(" ")[0] || "—", color: "#333" },
+          { label: "Parti / Groupe", value: id.groupe_parlementaire || id.parti || "—", color: "#333", small: true },
         ].map(s => (
           <div key={s.label} style={{ background: "#f7f7f5", borderRadius: 8, padding: "10px 12px" }}>
             <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{s.label}</div>
-            <div style={{ fontSize: 18, fontWeight: 500, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: s.small ? 12 : 18, fontWeight: 500, color: s.color, lineHeight: 1.3 }}>{s.value}</div>
           </div>
         ))}
       </div>
