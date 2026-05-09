@@ -28,7 +28,7 @@ export default function SearchBar({ onSearch, onFilterChange }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Rechercher un élu... ex: Marine Le Pen"
+          placeholder="Recherchez un(e) élu(e)... ex : Alain Tègre"
           style={{
             flex: 1, padding: "10px 14px",
             border: "0.5px solid #ccc", borderRadius: 8,
