@@ -94,12 +94,13 @@ function VoteRow({ vote }) {
 
 export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
   const { resultats } = result
-  const id  = resultats.identite
-  const md  = resultats.mandats
-  const ap  = resultats.activite_parlementaire
-  const co  = resultats.condamnations
-  const ac  = resultats.actualites_recentes
-  const ind = resultats.indemnites
+  const id    = resultats.identite
+  const liens = resultats.liens || {}
+  const md    = resultats.mandats
+  const ap    = resultats.activite_parlementaire
+  const co    = resultats.condamnations
+  const ac    = resultats.actualites_recentes
+  const ind   = resultats.indemnites
 
   const nbCondamnations = co?.condamnations?.length || 0
 
@@ -283,11 +284,13 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "0.5px solid #eee", fontSize: 11, color: "#bbb" }}>
-        Sources : <a href={id.source} target="_blank" style={{ color: "#999" }}>Wikipedia</a>
-        {" · "}<a href={ap?.source} target="_blank" style={{ color: "#999" }}>NosDéputés.fr</a>
-        {" · "}<a href={ind?.source} target="_blank" style={{ color: "#999" }}>HATVP</a>
-        {" · "}<a href={co?.source_url} target="_blank" style={{ color: "#999" }}>Casier Politique</a>
+      <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "0.5px solid #eee", fontSize: 11, color: "#bbb", display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <span>Sources :</span>
+        {liens.wikipedia  && <a href={liens.wikipedia}  target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>Wikipedia</a>}
+        {liens.nosdeputes && <a href={liens.nosdeputes} target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>NosDéputés.fr</a>}
+        {liens.assemblee  && <a href={liens.assemblee}  target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>Assemblée nationale</a>}
+        {liens.hatvp      && <a href={liens.hatvp}      target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>HATVP</a>}
+        {liens.casier     && <a href={liens.casier}     target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>Casier Politique</a>}
       </div>
     </div>
   )
