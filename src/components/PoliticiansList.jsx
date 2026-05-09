@@ -88,7 +88,7 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
   const charger = async () => {
     setLoading(true)
     try {
-      let url = `http://localhost:8000/politicians?type_mandat=${typeMandat}&page=${page}&page_size=${PAGE_SIZE}`
+      let url = `https://web-production-6c245.up.railway.app/politicians?type_mandat=${typeMandat}&page=${page}&page_size=${PAGE_SIZE}`
       if (filtreBord) url += `&bord=${encodeURIComponent(filtreBord)}`
       const res  = await fetch(url)
       const data = await res.json()
