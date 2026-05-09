@@ -95,7 +95,15 @@ function VoteRow({ vote }) {
 export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
   const { resultats } = result
   const id    = resultats.identite
-  const liens = resultats.liens || {}
+  const _nom  = result.recherche || id?.nom || ""
+  const _slug = _nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+  const liens = {
+    wikipedia:  id?.source  || `https://fr.wikipedia.org/wiki/${_nom.replace(/ /g, "_")}`,
+    nosdeputes: `https://www.nosdeputes.fr/${_slug}`,
+    hatvp:      `https://www.hatvp.fr/consulter-les-declarations/?s=${encodeURIComponent(_nom)}`,
+    casier:     "https://casier-politique.fr",
+    ...(resultats.liens || {}),
+  }
   const md    = resultats.mandats
   const ap    = resultats.activite_parlementaire
   const co    = resultats.condamnations
