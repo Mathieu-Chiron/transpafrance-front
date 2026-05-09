@@ -1,11 +1,10 @@
-export default function Header() {
+export default function Header({ onHome }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: "1.5rem" }}>
-      <img
-        src="/logo.svg"
-        alt="TranspaFrance"
-        style={{ width: 48, height: 48 }}
-      />
+    <div
+      onClick={onHome}
+      style={{ display: "flex", alignItems: "center", gap: 14, cursor: onHome ? "pointer" : "default" }}
+    >
+      <img src="/logo.svg" alt="TranspaFrance" style={{ width: 48, height: 48 }} />
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 500, marginBottom: 2, color: "#002395" }}>
           TranspaFrance

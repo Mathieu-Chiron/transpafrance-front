@@ -78,8 +78,9 @@ export default function App() {
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
 
-      <Header />
+      <Header onHome={() => { setResult(null); setVue("liste"); window.history.pushState({}, "", "/") }} />
 
+      <div style={{ marginTop: 20 }} />
       <SearchBar onSearch={search} />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "0.5px solid #eee", paddingBottom: 12 }}>
