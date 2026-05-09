@@ -118,7 +118,6 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
 
   const isEuroDepute = [
     ...(md?.mandats_rne || []),
-    ...(md?.mandats_en_cours || []),
     ...(md?.anciens_mandats || []),
     ...(md?.autres_mandats || []),
   ].some(m => {
@@ -187,11 +186,18 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: "1.25rem" }}>
         {[
-          { label: "Condamnations", value: nbCondamnations, color: nbCondamnations > 0 ? "#A32D2D" : "#333" },
-          { label: "Mandats cumulés", value: md?.nombre_mandats ?? "—", color: "#854F0B" },
-          { label: "Parti / Groupe", value: id.parti || id.groupe_parlementaire || "—", color: "#333", small: true },
+          { label: "Condamnations", value: nbCondamnations, color: nbCondamnations > 0 ? "#A32D2D" : "#333", tab: nbCondamnations > 0 ? "condamnations" : null },
+          { label: "Mandats cumulés", value: md?.nombre_mandats ?? "—", color: "#854F0B", tab: "mandats" },
+          { label: "Parti / Groupe", value: id.parti || id.groupe_parlementaire || "—", color: "#333", small: true, tab: null },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fafaf8", borderRadius: 8, padding: "10px 12px" }}>
+          <div
+            key={s.label}
+            onClick={() => s.tab && setActiveTab(s.tab)}
+            style={{
+              background: "#fafaf8", borderRadius: 8, padding: "10px 12px",
+              cursor: s.tab ? "pointer" : "default",
+            }}
+          >
             <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{s.label}</div>
             <div style={{ fontSize: s.small ? 12 : 18, fontWeight: 500, color: s.color, lineHeight: 1.3 }}>{s.value}</div>
           </div>
@@ -243,26 +249,43 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
 
       {activeTab === "mandats" && (
         <div>
-          {md?.mandats_en_cours?.length > 0 && (
+          {md?.mandats_rne?.length > 0 && (
             <>
-              <div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 6 }}>En cours</div>
-              {md.mandats_en_cours.map((m, i) => (
-                <div key={i} style={{ fontSize: 13, padding: "6px 0", borderBottom: "0.5px solid #eee" }}>
-                  {m.type || m.organisme} {m.role && `— ${m.role}`}
-                  {m.debut && <span style={{ color: "#999", marginLeft: 6, fontSize: 12 }}>depuis {m.debut}</span>}
+              <div style={{ fontSize: 12, fontWeight: 500, color: "#999", marginBottom: 8 }}>
+                Mandats en cours
+                {md.mandats_rne.length > 1 && (
+                  <span style={{ marginLeft: 8, background: "#FAEEDA", color: "#633806", fontSize: 10, padding: "2px 8px", borderRadius: 999 }}>
+                    {md.mandats_rne.length} mandats simultanés
+                  </span>
+                )}
+              </div>
+              {md.mandats_rne.map((m, i) => (
+                <div key={i} style={{
+                  padding: "10px 12px", marginBottom: 8, borderRadius: 8,
+                  background: md.mandats_rne.length > 1 ? "#FAEEDA" : "#fafaf8",
+                  border: `0.5px solid ${md.mandats_rne.length > 1 ? "#E8C57A" : "#eee"}`,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: md.mandats_rne.length > 1 ? "#412402" : "#1a1a1a" }}>
+                    {m.type}
+                    {m.departement && <span style={{ fontWeight: 400, color: "#666", marginLeft: 6 }}>— {m.departement}</span>}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#888", marginTop: 4, display: "flex", gap: 12, alignItems: "center" }}>
+                    <span>Depuis le <strong>{m.debut || "—"}</strong></span>
+                    <span style={{ fontSize: 11, padding: "1px 8px", borderRadius: 999, background: "#D4EDDA", color: "#1A5C2A" }}>Actif</span>
+                  </div>
                 </div>
               ))}
             </>
           )}
-          {resultats.mandats?.anciens_mandats?.length > 0 && (
+          {md?.anciens_mandats?.length > 0 && (
             <>
               <div style={{ fontSize: 12, fontWeight: 500, color: "#999", margin: "12px 0 6px" }}>Historique</div>
-              {resultats.mandats.anciens_mandats?.map((m, i) => (
-                <div key={i} style={{ fontSize: 13, color: "#555", padding: "4px 0", borderBottom: "0.5px solid #eee" }}>{m}</div>
+              {md.anciens_mandats.map((m, i) => (
+                <div key={i} style={{ fontSize: 13, color: "#555", padding: "6px 0", borderBottom: "0.5px solid #eee" }}>{m}</div>
               ))}
             </>
           )}
-          {!md?.mandats_en_cours?.length && !resultats.mandats?.anciens_mandats?.length &&
+          {!md?.mandats_rne?.length && !md?.anciens_mandats?.length &&
             <p style={{ fontSize: 13, color: "#999" }}>Aucun mandat disponible</p>
           }
         </div>

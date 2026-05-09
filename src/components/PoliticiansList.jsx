@@ -106,7 +106,7 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
 
   const elusFiltres = elus
     .filter(e => !filtreCondamne || e.condamne)
-    .filter(e => !filtreCumul   || (e.type_mandats || []).length > 1)
+    .filter(e => !filtreCumul   || e.cumul_mandats)
 
   return (
     <div>
@@ -258,6 +258,11 @@ export default function PoliticiansList({ onSelect, filtresActifs = [] }) {
                 <BadgeFonction key={t} type={t} />
               ))}
               {elu.condamne && <BadgeCaracteristique type="condamne" count={elu.nb_condamnations} />}
+              {elu.cumul_mandats && (
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 999, background: "#EBEBEB", color: "#555" }}>
+                  Cumul
+                </span>
+              )}
             </div>
           </div>
         ))}
