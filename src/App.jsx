@@ -3,6 +3,7 @@ import SearchBar from "./components/SearchBar"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
 import Sources from "./components/Sources"
+import Header from "./components/Header"
 
 export default function App() {
   const [result, setResult]       = useState(null)
@@ -33,12 +34,9 @@ export default function App() {
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
 
-      {/* Header + navbar */}
+      {/* Header + bouton Sources */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>TranspaFrance</h1>
-          <p style={{ fontSize: 14, color: "#666" }}>Base de données indépendante des représentants du peuple français</p>
-        </div>
+        <Header />
         <span
           onClick={() => {
             const next = vue === "sources" ? "liste" : "sources"

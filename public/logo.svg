@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <polygon points="72,4 124,32 124,112 72,140 20,112 20,32" fill="#002395"/>
+  <clipPath id="hex">
+    <polygon points="72,4 124,32 124,112 72,140 20,112 20,32"/>
+  </clipPath>
+  <rect x="20" y="4" width="35" height="136" fill="#4a7fd4" clip-path="url(#hex)" opacity="0.35"/>
+  <rect x="55" y="4" width="34" height="136" fill="#ffffff" clip-path="url(#hex)" opacity="0.18"/>
+  <rect x="89" y="4" width="35" height="136" fill="#ED2939" clip-path="url(#hex)" opacity="0.30"/>
+  <polygon points="72,4 124,32 124,112 72,140 20,112 20,32" fill="none" stroke="#fff" stroke-width="2" opacity="0.25"/>
+  <path d="M40,72 Q72,44 104,72 Q72,100 40,72 Z" fill="#fff"/>
+  <circle cx="72" cy="72" r="18" fill="#4a7fd4"/>
+  <circle cx="72" cy="72" r="18" fill="none" stroke="#002395" stroke-width="3" opacity="0.4"/>
+  <circle cx="72" cy="72" r="9" fill="#001a6e"/>
+  <circle cx="78" cy="66" r="4" fill="#fff" opacity="0.9"/>
+  <circle cx="65" cy="78" r="2" fill="#fff" opacity="0.4"/>
+  <path d="M40,72 Q72,44 104,72 Q72,100 40,72 Z" fill="none" stroke="#fff" stroke-width="2.5"/>
+  <line x1="48" y1="55" x2="44" y2="48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="62" y1="47" x2="62" y2="40" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="76" y1="47" x2="78" y2="40" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="90" y1="55" x2="94" y2="48" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <rect x="20" y="112" width="104" height="28" fill="#ED2939" clip-path="url(#hex)" opacity="0.7"/>
+</svg>
