@@ -273,7 +273,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
           <p style={{ fontSize: 13, color: "#555", marginBottom: 12 }}>
             Les déclarations d'intérêts et de patrimoine sont publiées par la HATVP.
           </p>
-          <a href={ind.source} target="_blank" style={{
+          <a href={liens.hatvp} target="_blank" rel="noopener noreferrer" style={{
             display: "inline-block", padding: "8px 16px", borderRadius: 8,
             border: "0.5px solid #ccc", fontSize: 13, color: "#333", textDecoration: "none"
           }}>
