@@ -28,9 +28,14 @@ export default function App() {
     }
 
     try {
-      const res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
+      let res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
       if (!res.ok) throw new Error("Erreur serveur")
-      const data = await res.json()
+      let data = await res.json()
+      // Si la réponse vient du cache ancien (sans liens), on force un refresh
+      if (data.cache && !data.resultats?.liens) {
+        res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}&refresh=true`)
+        data = await res.json()
+      }
       setResult(data)
     } catch (e) {
       setError("Impossible de contacter l'API. Vérifiez que le serveur FastAPI tourne.")
