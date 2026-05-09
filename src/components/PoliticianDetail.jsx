@@ -95,12 +95,16 @@ function VoteRow({ vote }) {
 export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
   const { resultats } = result
   const id    = resultats.identite
-  const _nom  = result.recherche || id?.nom || ""
-  const _slug = _nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+  const _nom   = result.recherche || id?.nom || ""
+  const _norm  = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim()
+  const _parts = _norm(_nom).split(/\s+/)
+  const _slug  = _parts.join("-")
+  // Format HATVP : nom-prenom (nom de famille en premier)
+  const _hatvpSlug = _parts.length >= 2 ? [_parts.slice(1).join("-"), _parts[0]].join("-") : _slug
   const liens = {
     wikipedia:  id?.source  || `https://fr.wikipedia.org/wiki/${_nom.replace(/ /g, "_")}`,
     nosdeputes: `https://www.nosdeputes.fr/${_slug}`,
-    hatvp:      `https://www.hatvp.fr/consulter-les-declarations/?s=${encodeURIComponent(_nom)}`,
+    hatvp:      `https://www.hatvp.fr/fiche-nominative/?declarant=${_hatvpSlug}`,
     casier:     "https://casier-politique.fr",
     ...(resultats.liens || {}),
   }
