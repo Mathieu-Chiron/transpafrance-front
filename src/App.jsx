@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import SearchBar from "./components/SearchBar"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
@@ -12,13 +12,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("condamnations")
   const [vue, setVue]             = useState("liste")
 
-  const search = async (name) => {
+  const search = async (name, pushState = true) => {
     if (!name.trim()) return
     setLoading(true)
     setError(null)
     setResult(null)
     setActiveTab("condamnations")
     setVue("fiche")
+
+    // Met à jour l'URL
+    if (pushState) {
+      const url = new URL(window.location)
+      url.searchParams.set("name", name)
+      window.history.pushState({}, "", url)
+    }
+
     try {
       const res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
       if (!res.ok) throw new Error("Erreur serveur")
@@ -31,48 +39,83 @@ export default function App() {
     }
   }
 
+  // Lecture de l'URL au chargement
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const name   = params.get("name")
+    if (name) {
+      search(name, false)
+    }
+  }, [])
+
+  // Gestion du bouton retour navigateur
+  useEffect(() => {
+    const handlePop = () => {
+      const params = new URLSearchParams(window.location.search)
+      const name   = params.get("name")
+      if (name) {
+        search(name, false)
+      } else {
+        setResult(null)
+        setVue("liste")
+      }
+    }
+    window.addEventListener("popstate", handlePop)
+    return () => window.removeEventListener("popstate", handlePop)
+  }, [])
+
+  const TABS = [
+    { id: "liste",   label: "🏛️ Élus" },
+    { id: "fiche",   label: result ? `📋 ${result.recherche}` : "📋 Fiche" },
+    { id: "sources", label: "🔍 Sources" },
+  ]
+
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
 
-      {/* Header + bouton Sources */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-        <Header />
-        <span
-          onClick={() => {
-            const next = vue === "sources" ? "liste" : "sources"
-            setVue(next)
-            window.history.pushState({}, "", next === "sources" ? "/sources" : "/")
-          }}
-          style={{
-            padding: "8px 18px", borderRadius: 8, fontSize: 13, cursor: "pointer",
-            background: vue === "sources" ? "#1a1a1a" : "#f0f0ee",
-            color: vue === "sources" ? "#fff" : "#555",
-            fontWeight: 500, border: "0.5px solid #ddd",
-            whiteSpace: "nowrap",
-          }}
-        >
-          🔍 Sources
-        </span>
-      </div>
+      <Header />
 
-      {/* Barre de recherche */}
       <SearchBar onSearch={search} />
 
-      {/* Erreur */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "0.5px solid #eee", paddingBottom: 12 }}>
+        {TABS.map(t => (
+          <span
+            key={t.id}
+            onClick={() => {
+              if (t.id === "fiche" && !result) return
+              setVue(t.id)
+              // Nettoie l'URL si on revient à la liste
+              if (t.id === "liste") {
+                const url = new URL(window.location)
+                url.searchParams.delete("name")
+                window.history.pushState({}, "", url)
+              }
+            }}
+            style={{
+              padding: "6px 14px", borderRadius: 999, fontSize: 13,
+              cursor: t.id === "fiche" && !result ? "default" : "pointer",
+              background: vue === t.id ? "#1a1a1a" : "#f0f0ee",
+              color: vue === t.id ? "#fff" : t.id === "fiche" && !result ? "#bbb" : "#555",
+              fontWeight: vue === t.id ? 500 : 400,
+            }}
+          >
+            {t.label}
+          </span>
+        ))}
+      </div>
+
       {error && (
         <div style={{ background: "#FCEBEB", border: "0.5px solid #E24B4A", borderRadius: 8, padding: "12px 16px", color: "#791F1F", fontSize: 14, marginBottom: 16 }}>
           {error}
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
         <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>
           Recherche en cours...
         </div>
       )}
 
-      {/* Vues */}
       {vue === "liste" && !loading && (
         <PoliticiansList onSelect={(nom) => search(nom)} />
       )}
