@@ -65,7 +65,10 @@ export default function App() {
             <div style={{ width: 4, height: 32, borderRadius: 2, background: "#EF4135" }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 600, lineHeight: 1.1 }}>Transpafrance</h1>
+            <h1
+            onClick={() => { setResult(null); setVue("liste"); window.history.pushState({}, "", "/") }}
+            style={{ fontSize: 26, fontWeight: 600, lineHeight: 1.1, cursor: "pointer" }}
+          >Transpafrance</h1>
             <p style={{ fontSize: 13, color: "#888", marginTop: 2 }}>Base de données des représentants du peuple français</p>
           </div>
         </div>
@@ -73,33 +76,6 @@ export default function App() {
 
       {/* Barre de recherche */}
       <SearchBar onSearch={search} onFilterChange={setFiltres} />
-
-      {/* Tabs vue */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-        <span
-          onClick={() => setVue("liste")}
-          className="chip"
-          style={{
-            padding: "5px 14px", borderRadius: 999, fontSize: 13,
-            background: vue === "liste" ? "#0055A4" : "#f4f4f2",
-            color: vue === "liste" ? "#fff" : "#555",
-          }}
-        >
-          Liste des élus
-        </span>
-        <span
-          onClick={() => result && setVue("fiche")}
-          className="chip"
-          style={{
-            padding: "5px 14px", borderRadius: 999, fontSize: 13,
-            cursor: result ? "pointer" : "default",
-            background: vue === "fiche" ? "#0055A4" : "#f4f4f2",
-            color: vue === "fiche" ? "#fff" : result ? "#555" : "#bbb",
-          }}
-        >
-          Fiche détaillée {result ? `— ${result.recherche}` : ""}
-        </span>
-      </div>
 
       {/* Erreur */}
       {error && (

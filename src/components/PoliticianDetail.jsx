@@ -148,7 +148,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
             {id.profession}
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {(id.groupe_parlementaire || id.parti) && (
+            {id.parti && (
               <span style={{
                 fontSize: 11, padding: "2px 8px", borderRadius: 999,
                 background: "#E6F1FB", color: "#0C447C",
@@ -160,11 +160,11 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
                     background: BORD_COULEUR[id.bord_politique] || "#999",
                   }} />
                 )}
-                {id.groupe_parlementaire || id.parti}
+                {id.parti}
               </span>
             )}
-            {id.groupe_parlementaire && id.parti && id.groupe_parlementaire !== id.parti && (
-              <Badge label={id.parti} type="parti" />
+            {id.groupe_parlementaire && id.groupe_parlementaire !== id.parti && (
+              <Badge label={id.groupe_parlementaire} type="parti" />
             )}
             {nbCondamnations > 0 && <Badge label={`${nbCondamnations} condamnation${nbCondamnations > 1 ? "s" : ""}`} type="condamne" />}
             {md?.cumul_mandats && <Badge label="Cumul de mandats" type="cumul" />}
@@ -176,7 +176,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
         {[
           { label: "Condamnations", value: nbCondamnations, color: nbCondamnations > 0 ? "#A32D2D" : "#333" },
           { label: "Mandats cumulés", value: md?.nombre_mandats ?? "—", color: "#854F0B" },
-          { label: "Parti / Groupe", value: id.groupe_parlementaire || id.parti || "—", color: "#333", small: true },
+          { label: "Parti / Groupe", value: id.parti || id.groupe_parlementaire || "—", color: "#333", small: true },
         ].map(s => (
           <div key={s.label} style={{ background: "#fafaf8", borderRadius: 8, padding: "10px 12px" }}>
             <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{s.label}</div>
