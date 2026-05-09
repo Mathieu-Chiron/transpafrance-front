@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import SearchBar from "./components/SearchBar"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
+import Sources from "./components/Sources"
 
 export default function App() {
   const [result, setResult]       = useState(null)
@@ -9,18 +10,14 @@ export default function App() {
   const [error, setError]         = useState(null)
   const [activeTab, setActiveTab] = useState("condamnations")
   const [vue, setVue]             = useState("liste")
-  const [filtres, setFiltres]     = useState([])
 
-  const search = async (name, pushState = true) => {
+  const search = async (name) => {
     if (!name.trim()) return
     setLoading(true)
     setError(null)
     setResult(null)
     setActiveTab("condamnations")
     setVue("fiche")
-    if (pushState) {
-      window.history.pushState({name}, "", `?name=${encodeURIComponent(name)}`)
-    }
     try {
       const res  = await fetch(`http://localhost:8000/politician?name=${encodeURIComponent(name)}`)
       if (!res.ok) throw new Error("Erreur serveur")
@@ -33,49 +30,35 @@ export default function App() {
     }
   }
 
-  // Charge depuis l'URL au démarrage
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const name   = params.get("name")
-    if (name) search(name, false)
-  }, [])
-
-  // Gère le bouton retour du navigateur
-  useEffect(() => {
-    const onPop = (e) => {
-      const params = new URLSearchParams(window.location.search)
-      const name   = params.get("name")
-      if (name) search(name, false)
-      else { setResult(null); setVue("liste") }
-    }
-    window.addEventListener("popstate", onPop)
-    return () => window.removeEventListener("popstate", onPop)
-  }, [])
-
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" }}>
 
-      {/* Header */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          {/* Tricolore vertical */}
-          <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
-            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#0055A4" }} />
-            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#DDDDDD" }} />
-            <div style={{ width: 4, height: 32, borderRadius: 2, background: "#EF4135" }} />
-          </div>
-          <div>
-            <h1
-            onClick={() => { setResult(null); setVue("liste"); window.history.pushState({}, "", "/") }}
-            style={{ fontSize: 26, fontWeight: 600, lineHeight: 1.1, cursor: "pointer" }}
-          >Transpafrance</h1>
-            <p style={{ fontSize: 13, color: "#888", marginTop: 2 }}>Base de données des représentants du peuple français</p>
-          </div>
+      {/* Header + navbar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+        <div>
+          <h1 style={{ fontSize: 26, fontWeight: 600, marginBottom: 4 }}>TranspaFrance</h1>
+          <p style={{ fontSize: 14, color: "#666" }}>Base de données indépendante des représentants du peuple français</p>
         </div>
+        <span
+          onClick={() => {
+            const next = vue === "sources" ? "liste" : "sources"
+            setVue(next)
+            window.history.pushState({}, "", next === "sources" ? "/sources" : "/")
+          }}
+          style={{
+            padding: "8px 18px", borderRadius: 8, fontSize: 13, cursor: "pointer",
+            background: vue === "sources" ? "#1a1a1a" : "#f0f0ee",
+            color: vue === "sources" ? "#fff" : "#555",
+            fontWeight: 500, border: "0.5px solid #ddd",
+            whiteSpace: "nowrap",
+          }}
+        >
+          🔍 Sources
+        </span>
       </div>
 
       {/* Barre de recherche */}
-      <SearchBar onSearch={search} onFilterChange={setFiltres} />
+      <SearchBar onSearch={search} />
 
       {/* Erreur */}
       {error && (
@@ -91,12 +74,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Vue liste */}
+      {/* Vues */}
       {vue === "liste" && !loading && (
-        <PoliticiansList onSelect={(nom) => search(nom)} filtresActifs={filtres} />
+        <PoliticiansList onSelect={(nom) => search(nom)} />
       )}
 
-      {/* Vue fiche */}
       {vue === "fiche" && result && !loading && (
         <PoliticianDetail
           result={result}
@@ -104,6 +86,11 @@ export default function App() {
           setActiveTab={setActiveTab}
         />
       )}
+
+      {vue === "sources" && (
+        <Sources />
+      )}
+
     </div>
   )
 }

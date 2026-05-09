@@ -118,12 +118,12 @@ export default function Sources() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {SOURCES.map((s, i) => (
+        {[...SOURCES].sort((a, b) => b.officiel - a.officiel).map((s, i) => (
           <div
             key={i}
             style={{
-              background: "#fff",
-              border: "0.5px solid #e5e5e5",
+              background: s.officiel ? "#EEF4FB" : "#fff",
+              border: s.officiel ? "0.5px solid #B8D4EE" : "0.5px solid #e5e5e5",
               borderRadius: 10,
               padding: "16px 20px",
             }}
@@ -138,7 +138,7 @@ export default function Sources() {
               </div>
 
               {/* Encart source */}
-              
+              <a
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -160,7 +160,7 @@ export default function Sources() {
               >
                 {s.officiel && <span>🇫🇷</span>}
                 <span>{s.officiel ? "Source officielle" : "Source indépendante"}</span>
-                <span style={{ fontSize: 10, opacity: 0.7 }}>↗</span>
+                <span style={{ fontSize: 10, opacity: 0.7 }}>→</span>
               </a>
             </div>
 
