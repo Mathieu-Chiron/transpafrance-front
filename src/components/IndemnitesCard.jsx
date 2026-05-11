@@ -1,42 +1,40 @@
-const SMIC_BRUT    = 1766.92   // SMIC brut mensuel 2024
-const SALAIRE_MED  = 2340      // Salaire médian France 2023
+const SMIC_BRUT   = 1766.92  // SMIC brut mensuel 2024
+const SALAIRE_MED = 2340     // Salaire médian France 2023
 
-// Indemnités mairie estimées selon taille commune (source: DGCL)
-const INDEMNITE_MAIRE = {
-  label:   "Maire",
-  mensuel: 2500,
-  note:    "estimation moyenne toutes communes",
+const INDEMNITE_MAIRE = { label: "Maire", mensuel: 2500 }
+
+const POSTES = {
+  collabs: {
+    label: "Budget collaborateurs",
+    detail: "Enveloppe mensuelle pour rémunérer jusqu'à 5 assistants parlementaires. Embauche libre, sans appel d'offres ni contrôle d'usage.",
+  },
+  brut: {
+    label: "Indemnité parlementaire brute",
+    detail: "Rémunération mensuelle fixée par ordonnance. Soumise à cotisations sociales et impôt sur le revenu comme tout salaire.",
+  },
+  frais: {
+    label: "Frais de mandat",
+    detail: "Forfait mensuel pour couvrir les dépenses liées au mandat. Versé automatiquement, sans obligation de justificatif ni contrôle a posteriori.",
+  },
 }
 
 function fmt(n) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n)
 }
 
-function Ratio({ valeur, reference, label }) {
-  const r = (valeur / reference).toFixed(1)
-  return (
-    <span style={{ fontSize: 12, color: "#666" }}>
-      <strong style={{ color: "#1a1a1a" }}>{r}×</strong> {label}
-    </span>
-  )
-}
-
-function Ligne({ label, montant, note, highlight }) {
+function PosteLigne({ poste, montant, last }) {
   return (
     <div style={{
-      display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-      padding: "10px 0", borderBottom: "0.5px solid #f0f0ee", gap: 12,
+      padding: "14px 0",
+      borderBottom: last ? "none" : "0.5px solid #f0f0ee",
     }}>
-      <div>
-        <div style={{ fontSize: 13, color: "#333", fontWeight: highlight ? 500 : 400 }}>{label}</div>
-        {note && <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{note}</div>}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#1a1a1a" }}>{poste.label}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a", whiteSpace: "nowrap", flexShrink: 0 }}>
+          {fmt(montant)}<span style={{ fontSize: 11, fontWeight: 400, color: "#999" }}> /mois</span>
+        </div>
       </div>
-      <div style={{
-        fontSize: 14, fontWeight: 600, color: highlight ? "#1a1a1a" : "#555",
-        whiteSpace: "nowrap", flexShrink: 0,
-      }}>
-        {fmt(montant)} <span style={{ fontWeight: 400, fontSize: 11, color: "#999" }}>/mois</span>
-      </div>
+      <div style={{ fontSize: 11, color: "#888", marginTop: 4, lineHeight: 1.5 }}>{poste.detail}</div>
     </div>
   )
 }
@@ -51,79 +49,59 @@ export default function IndemnitesCard({ indemnites, mandats }) {
   const collabs    = m.credit_collaborateurs
   const source     = m.source
 
-  // Détection cumul depuis mandats_rne
-  const mandatsRne   = mandats?.mandats_rne || []
-  const estMaire     = mandatsRne.some(m => m.type === "Maire")
-  const totalCumul   = brut + (estMaire ? INDEMNITE_MAIRE.mensuel : 0)
-  const hasCumul     = estMaire
+  const mandatsRne = mandats?.mandats_rne || []
+  const estMaire   = mandatsRne.some(r => r.type === "Maire")
+  const totalBase  = brut + frais + collabs
+  const totalCumul = totalBase + (estMaire ? INDEMNITE_MAIRE.mensuel : 0)
 
-  const labelMandat  = typeMandat === "senateur" ? "Sénateur" : "Député"
+  // Postes triés du plus élevé au plus faible
+  const lignes = [
+    { poste: POSTES.collabs, montant: collabs },
+    { poste: POSTES.brut,    montant: brut },
+    { poste: POSTES.frais,   montant: frais },
+  ].sort((a, b) => b.montant - a.montant)
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-      {/* Indemnité principale */}
+      {/* Total contribuable */}
       <div style={{ background: "#f7f7f5", borderRadius: 12, padding: "18px 20px" }}>
         <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-          Indemnité parlementaire brute
+          Coût total pour le contribuable
         </div>
-        <div style={{ fontSize: 36, fontWeight: 700, color: "#1a1a1a", lineHeight: 1 }}>
-          {fmt(brut)}
+        <div style={{ fontSize: 38, fontWeight: 700, color: "#1a1a1a", lineHeight: 1 }}>
+          {fmt(estMaire ? totalCumul : totalBase)}
           <span style={{ fontSize: 14, fontWeight: 400, color: "#888", marginLeft: 6 }}>/mois</span>
         </div>
         <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
-          soit {fmt(brut * 12)} / an
+          soit {fmt((estMaire ? totalCumul : totalBase) * 12)} / an
         </div>
-
-        {/* Comparaisons */}
-        <div style={{ display: "flex", gap: 16, marginTop: 14, flexWrap: "wrap" }}>
-          <div style={{ background: "#fff", borderRadius: 8, padding: "8px 14px", border: "0.5px solid #e8e8e4" }}>
-            <Ratio valeur={brut} reference={SMIC_BRUT} label="le SMIC brut" />
-          </div>
-          <div style={{ background: "#fff", borderRadius: 8, padding: "8px 14px", border: "0.5px solid #e8e8e4" }}>
-            <Ratio valeur={brut} reference={SALAIRE_MED} label="le salaire médian français" />
-          </div>
+        <div style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
+          {[
+            { ref: SMIC_BRUT,   label: "le SMIC brut" },
+            { ref: SALAIRE_MED, label: "le salaire médian" },
+          ].map(({ ref, label }) => (
+            <div key={label} style={{ background: "#fff", borderRadius: 8, padding: "7px 12px", border: "0.5px solid #e8e8e4", fontSize: 12, color: "#666" }}>
+              <strong style={{ color: "#1a1a1a" }}>{((estMaire ? totalCumul : totalBase) / ref).toFixed(1)}×</strong> {label}
+            </div>
+          ))}
         </div>
+        {estMaire && (
+          <div style={{ fontSize: 11, color: "#b35c00", marginTop: 10, background: "#FAEEDA", borderRadius: 6, padding: "6px 10px" }}>
+            Cumul détecté : inclut ~{fmt(INDEMNITE_MAIRE.mensuel)}/mois d'indemnité de maire
+          </div>
+        )}
       </div>
 
-      {/* Cumul si détecté */}
-      {hasCumul && (
-        <div style={{ background: "#FAEEDA", borderRadius: 12, padding: "16px 20px" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#633806", marginBottom: 10 }}>
-            Cumul de mandats détecté — estimation du total
-          </div>
-          <Ligne label={labelMandat} montant={brut} highlight />
-          <Ligne label={`+ ${INDEMNITE_MAIRE.label}`} montant={INDEMNITE_MAIRE.mensuel} note={INDEMNITE_MAIRE.note} />
-          <div style={{
-            display: "flex", justifyContent: "space-between", paddingTop: 10, marginTop: 2,
-            fontSize: 14, fontWeight: 700, color: "#633806",
-          }}>
-            <span>Total estimé</span>
-            <span>~{fmt(totalCumul)} /mois</span>
-          </div>
-        </div>
-      )}
-
-      {/* Frais et budget */}
+      {/* Détail des postes */}
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.8 }}>
-          Autres dotations
+        <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+          Détail
         </div>
-        <div style={{ background: "#fafaf8", borderRadius: 10, padding: "4px 16px", border: "0.5px solid #eee" }}>
-          <Ligne
-            label="Frais de mandat"
-            montant={frais}
-            note="Non contrôlés, non justifiés — remboursés automatiquement"
-          />
-          <Ligne
-            label="Budget collaborateurs"
-            montant={collabs}
-            note="Embauche libre, sans appel d'offres"
-          />
-          <div style={{ padding: "10px 0", fontSize: 12, color: "#aaa" }}>
-            <strong style={{ color: "#888" }}>Total dotations</strong>
-            {" "}(hors indemnité) : <strong style={{ color: "#555" }}>{fmt(frais + collabs)} /mois</strong>
-          </div>
+        <div style={{ background: "#fafaf8", borderRadius: 10, padding: "0 16px", border: "0.5px solid #eee" }}>
+          {lignes.map(({ poste, montant }, i) => (
+            <PosteLigne key={poste.label} poste={poste} montant={montant} last={i === lignes.length - 1} />
+          ))}
         </div>
       </div>
 
