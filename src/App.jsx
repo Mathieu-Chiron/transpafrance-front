@@ -3,6 +3,7 @@ import SearchBar from "./components/SearchBar"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
 import Sources from "./components/Sources"
+import CodePostalSearch from './components/CodePostalSearch'
 import Header from "./components/Header"
 
 export default function App() {
@@ -82,6 +83,7 @@ export default function App() {
 
       <div style={{ marginTop: 20 }} />
       <SearchBar onSearch={search} />
+      <CodePostalSearch onSelectElu={(nom) => search(nom)} />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "0.5px solid #eee", paddingBottom: 12 }}>
         {TABS.map(t => (
