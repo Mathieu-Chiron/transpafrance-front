@@ -1,6 +1,7 @@
 import { BORD_COULEUR } from "../bordCouleur"
 
 import ScoreCard from "./ScoreCard"
+import IndemnitesCard from "./IndemnitesCard"
 
 const TABS = [
   { id: "score",         label: "Score" },
@@ -296,15 +297,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
 
       {activeTab === "indemnites" && (
         <div>
-          <p style={{ fontSize: 13, color: "#555", marginBottom: 12 }}>
-            Les déclarations d'intérêts et de patrimoine sont publiées par la HATVP.
-          </p>
-          <a href={liens.hatvp} target="_blank" rel="noopener noreferrer" style={{
-            display: "inline-block", padding: "8px 16px", borderRadius: 8,
-            border: "0.5px solid #ccc", fontSize: 13, color: "#333", textDecoration: "none"
-          }}>
-            Voir la fiche HATVP
-          </a>
+          <IndemnitesCard indemnites={resultats.indemnites} mandats={resultats.mandats} />
         </div>
       )}
 
