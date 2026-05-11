@@ -4,17 +4,17 @@ const SALAIRE_MED = 2340     // Salaire médian France 2023
 const INDEMNITE_MAIRE = { label: "Maire", mensuel: 2500 }
 
 const POSTES = {
-  collabs: {
-    label: "Budget collaborateurs",
-    detail: "Enveloppe mensuelle pour rémunérer jusqu'à 5 assistants parlementaires. Embauche libre, sans appel d'offres ni contrôle d'usage.",
-  },
   brut: {
-    label: "Indemnité parlementaire brute",
+    label:  "Indemnité parlementaire brute",
     detail: "Rémunération mensuelle fixée par ordonnance. Soumise à cotisations sociales et impôt sur le revenu comme tout salaire.",
   },
   frais: {
-    label: "Frais de mandat",
-    detail: "Forfait mensuel pour couvrir les dépenses liées au mandat. Versé automatiquement, sans obligation de justificatif ni contrôle a posteriori.",
+    label:  "Frais de mandat",
+    detail: "Forfait mensuel versé automatiquement, sans obligation de justificatif ni contrôle a posteriori.",
+  },
+  collabs: {
+    label:  "Budget collaborateurs",
+    detail: "Enveloppe pour rémunérer jusqu'à 5 assistants parlementaires. Embauche libre, sans appel d'offres ni contrôle d'usage.",
   },
 }
 
@@ -22,19 +22,48 @@ function fmt(n) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n)
 }
 
+function TotalLigne({ label, montant, sub, comparaisons, bg, textColor, subColor, chipBg, chipBorder, chipText }) {
+  return (
+    <div style={{ background: bg || "#f7f7f5", borderRadius: 10, padding: "16px 20px" }}>
+      <div style={{ fontSize: 11, color: subColor || "#999", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+        {label}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 32, fontWeight: 700, color: textColor || "#1a1a1a", lineHeight: 1 }}>
+          {fmt(montant)}
+        </span>
+        <span style={{ fontSize: 13, color: subColor || "#888" }}>/mois</span>
+        <span style={{ fontSize: 12, color: subColor || "#888" }}>· {fmt(montant * 12)}/an</span>
+      </div>
+      {comparaisons && (
+        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+          {comparaisons.map(({ ref, label: lbl }) => (
+            <div key={lbl} style={{
+              background: chipBg || "#fff",
+              borderRadius: 7, padding: "6px 11px",
+              border: `0.5px solid ${chipBorder || "#e8e8e4"}`,
+              fontSize: 12, color: chipText || "#666",
+            }}>
+              <strong style={{ color: textColor || "#1a1a1a" }}>{(montant / ref).toFixed(1)}×</strong> {lbl}
+            </div>
+          ))}
+        </div>
+      )}
+      {sub && <div style={{ fontSize: 11, color: subColor || "#999", marginTop: 8 }}>{sub}</div>}
+    </div>
+  )
+}
+
 function PosteLigne({ poste, montant, last }) {
   return (
-    <div style={{
-      padding: "14px 0",
-      borderBottom: last ? "none" : "0.5px solid #f0f0ee",
-    }}>
+    <div style={{ padding: "13px 0", borderBottom: last ? "none" : "0.5px solid #f0f0ee" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: "#1a1a1a" }}>{poste.label}</div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a", whiteSpace: "nowrap", flexShrink: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", whiteSpace: "nowrap", flexShrink: 0 }}>
           {fmt(montant)}<span style={{ fontSize: 11, fontWeight: 400, color: "#999" }}> /mois</span>
         </div>
       </div>
-      <div style={{ fontSize: 11, color: "#888", marginTop: 4, lineHeight: 1.5 }}>{poste.detail}</div>
+      <div style={{ fontSize: 11, color: "#888", marginTop: 3, lineHeight: 1.5 }}>{poste.detail}</div>
     </div>
   )
 }
@@ -49,53 +78,37 @@ export default function IndemnitesCard({ indemnites, mandats }) {
   const collabs    = m.credit_collaborateurs
   const source     = m.source
 
-  const mandatsRne = mandats?.mandats_rne || []
-  const estMaire   = mandatsRne.some(r => r.type === "Maire")
-  const totalBase  = brut + frais + collabs
-  const totalCumul = totalBase + (estMaire ? INDEMNITE_MAIRE.mensuel : 0)
+  const mandatsRne  = mandats?.mandats_rne || []
+  const estMaire    = mandatsRne.some(r => r.type === "Maire")
+  const bonusMaire  = estMaire ? INDEMNITE_MAIRE.mensuel : 0
 
-  // Postes triés du plus élevé au plus faible
+  const percoit     = brut + frais + bonusMaire       // ce que perçoit l'élu
+  const coutTotal   = brut + frais + collabs + bonusMaire  // coût contribuable
+
   const lignes = [
-    { poste: POSTES.collabs, montant: collabs },
     { poste: POSTES.brut,    montant: brut },
     { poste: POSTES.frais,   montant: frais },
-  ].sort((a, b) => b.montant - a.montant)
+    { poste: POSTES.collabs, montant: collabs },
+  ]
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
-      {/* Total contribuable */}
-      <div style={{ background: "#f7f7f5", borderRadius: 12, padding: "18px 20px" }}>
-        <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-          Coût total pour le contribuable
-        </div>
-        <div style={{ fontSize: 38, fontWeight: 700, color: "#1a1a1a", lineHeight: 1 }}>
-          {fmt(estMaire ? totalCumul : totalBase)}
-          <span style={{ fontSize: 14, fontWeight: 400, color: "#888", marginLeft: 6 }}>/mois</span>
-        </div>
-        <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
-          soit {fmt((estMaire ? totalCumul : totalBase) * 12)} / an
-        </div>
-        <div style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
-          {[
-            { ref: SMIC_BRUT,   label: "le SMIC brut" },
-            { ref: SALAIRE_MED, label: "le salaire médian" },
-          ].map(({ ref, label }) => (
-            <div key={label} style={{ background: "#fff", borderRadius: 8, padding: "7px 12px", border: "0.5px solid #e8e8e4", fontSize: 12, color: "#666" }}>
-              <strong style={{ color: "#1a1a1a" }}>{((estMaire ? totalCumul : totalBase) / ref).toFixed(1)}×</strong> {label}
-            </div>
-          ))}
-        </div>
-        {estMaire && (
-          <div style={{ fontSize: 11, color: "#b35c00", marginTop: 10, background: "#FAEEDA", borderRadius: 6, padding: "6px 10px" }}>
-            Cumul détecté : inclut ~{fmt(INDEMNITE_MAIRE.mensuel)}/mois d'indemnité de maire
-          </div>
-        )}
-      </div>
+      {/* Ligne 1 : ce que perçoit l'élu — fond bleu pâle */}
+      <TotalLigne
+        label={`Ce que perçoit le ${typeMandat === "senateur" ? "sénateur" : "député"}`}
+        montant={percoit}
+        comparaisons={[
+          { ref: SMIC_BRUT,   label: "le SMIC brut" },
+          { ref: SALAIRE_MED, label: "le salaire médian" },
+        ]}
+        sub={estMaire ? `Dont ~${fmt(bonusMaire)}/mois d'indemnité de maire` : null}
+        bg="#E6F1FB" textColor="#0C447C" subColor="#4a7ab0" chipBg="#fff" chipBorder="#c2d9f0" chipText="#0C447C"
+      />
 
-      {/* Détail des postes */}
+      {/* Détail */}
       <div>
-        <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+        <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, margin: "4px 0 6px" }}>
           Détail
         </div>
         <div style={{ background: "#fafaf8", borderRadius: 10, padding: "0 16px", border: "0.5px solid #eee" }}>
@@ -104,6 +117,14 @@ export default function IndemnitesCard({ indemnites, mandats }) {
           ))}
         </div>
       </div>
+
+      {/* Ligne 2 : coût total contribuable — fond rouge pâle */}
+      <TotalLigne
+        label="Coût total pour le contribuable"
+        montant={coutTotal}
+        sub={`Inclut ${fmt(collabs)}/mois de budget collaborateurs non perçu directement`}
+        bg="#FCEBEB" textColor="#791F1F" subColor="#a04040" chipBg="#fff" chipBorder="#f0c5c5" chipText="#791F1F"
+      />
 
       {/* Source */}
       {source && (
