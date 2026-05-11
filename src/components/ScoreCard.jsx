@@ -77,10 +77,12 @@ export default function ScoreCard({ score }) {
               </span>
             )
           } else if (key === "hatvp") {
-            rightContent = (
-              <span style={{ fontSize: 11, color: d.hatvp_ok ? "#1a7a3c" : "#c0392b" }}>
-                {d.hatvp_ok ? "Déclaration trouvée" : "Non trouvée"}
-              </span>
+            rightContent = d.hatvp_ok && d.url ? (
+              <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#1a7a3c", textDecoration: "underline" }}>
+                Déclaration trouvée
+              </a>
+            ) : (
+              <span style={{ fontSize: 11, color: "#c0392b" }}>Non trouvée</span>
             )
           } else if (hasPct) {
             rightContent = (
