@@ -32,8 +32,8 @@ export default function App() {
       let res  = await fetch(`https://web-production-6c245.up.railway.app/politician?name=${encodeURIComponent(name)}`)
       if (!res.ok) throw new Error("Erreur serveur")
       let data = await res.json()
-      // Si la réponse vient du cache ancien (sans liens), on force un refresh
-      if (data.cache && !data.resultats?.liens) {
+      // Si la réponse vient du cache ancien (sans liens ou sans score), on force un refresh
+      if (data.cache && (!data.resultats?.liens || !data.resultats?.score)) {
         res  = await fetch(`https://web-production-6c245.up.railway.app/politician?name=${encodeURIComponent(name)}&refresh=true`)
         data = await res.json()
       }
@@ -82,8 +82,8 @@ export default function App() {
       <Header onHome={() => { setResult(null); setVue("liste"); window.history.pushState({}, "", "/") }} />
 
       <div style={{ marginTop: 20 }} />
-      <SearchBar onSearch={search} />
       <CodePostalSearch onSelectElu={(nom) => search(nom)} />
+      <SearchBar onSearch={search} />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: "0.5px solid #eee", paddingBottom: 12 }}>
         {TABS.map(t => (

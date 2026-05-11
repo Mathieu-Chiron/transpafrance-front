@@ -1,6 +1,9 @@
 import { BORD_COULEUR } from "../bordCouleur"
 
+import ScoreCard from "./ScoreCard"
+
 const TABS = [
+  { id: "score",         label: "Score" },
   { id: "condamnations", label: "Condamnations" },
   { id: "votes",         label: "Votes" },
   { id: "mandats",       label: "Mandats" },
@@ -317,6 +320,10 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
             ))
           }
         </div>
+      )}
+
+      {activeTab === "score" && (
+        <ScoreCard score={resultats?.score} />
       )}
 
       <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "0.5px solid #eee", fontSize: 11, color: "#bbb", display: "flex", gap: 12, flexWrap: "wrap" }}>
