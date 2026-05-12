@@ -295,17 +295,29 @@ export default function Home() {
       {/* Stats */}
       <div style={{ display: "flex", borderBottom: "0.5px solid #e5e5e5" }}>
         {[
-          { num: stats.deputes,            label: "Députés indexés" },
-          { num: stats.senateurs,          label: "Sénateurs indexés" },
-          { num: stats.elus_avec_affaires, label: "Élus avec affaires" },
-          { num: stats.total_procedures,   label: "Procédures répertoriées" },
-          { num: "100%",                   label: "Données publiques" },
+          { num: stats.deputes,            label: "Députés indexés",        href: null },
+          { num: stats.senateurs,          label: "Sénateurs indexés",      href: null },
+          { num: stats.elus_avec_affaires, label: "Élus avec affaires",     href: "/affaires" },
+          { num: stats.total_procedures,   label: "Procédures répertoriées",href: "/affaires" },
+          { num: "100%",                   label: "Données publiques",      href: "/sources" },
         ].map((s, i, arr) => (
-          <div key={s.label} style={{ flex: 1, padding: "16px 0", textAlign: "center", borderRight: i < arr.length - 1 ? "0.5px solid #e5e5e5" : "none" }}>
+          <div
+            key={s.label}
+            onClick={() => s.href && navigate(s.href)}
+            style={{
+              flex: 1, padding: "16px 0", textAlign: "center",
+              borderRight: i < arr.length - 1 ? "0.5px solid #e5e5e5" : "none",
+              cursor: s.href ? "pointer" : "default",
+            }}
+            onMouseEnter={ev => { if (s.href) ev.currentTarget.style.background = "#f5f7ff" }}
+            onMouseLeave={ev => { if (s.href) ev.currentTarget.style.background = "transparent" }}
+          >
             <div style={{ fontSize: 20, fontWeight: 500, color: "#002395" }}>
               {s.num ?? "—"}
             </div>
-            <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 11, color: s.href ? "#002395" : "#999", marginTop: 2, textDecoration: s.href ? "underline" : "none" }}>
+              {s.label}
+            </div>
           </div>
         ))}
       </div>

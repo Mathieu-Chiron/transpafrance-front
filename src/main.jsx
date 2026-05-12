@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./pages/Home"
 import App from "./App"
+import Affaires from "./pages/Affaires"
+import Sources from "./pages/Sources"
 import "./index.css"
 
 createRoot(document.getElementById("root")).render(
@@ -11,6 +13,8 @@ createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/app" element={<App />} />
+        <Route path="/affaires" element={<Affaires />} />
+        <Route path="/sources" element={<Sources />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
