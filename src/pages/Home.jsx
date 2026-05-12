@@ -262,7 +262,7 @@ export default function Home() {
                   value={postal}
                   onChange={e => setPostal(e.target.value.replace(/\D/g, "").slice(0, 5))}
                   onKeyDown={handleKey}
-                  placeholder="75011, 69001, 13008..."
+                  placeholder="69, 75, 69001, 13008..."
                   maxLength={5}
                   style={{ flex: 1, padding: "10px 16px", border: "0.5px solid #ddd", borderRadius: 8, fontSize: 16, outline: "none" }}
                 />
