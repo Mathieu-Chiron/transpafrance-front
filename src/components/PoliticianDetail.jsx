@@ -2,6 +2,7 @@ import { BORD_COULEUR } from "../bordCouleur"
 
 import ScoreCard from "./ScoreCard"
 import IndemnitesCard from "./IndemnitesCard"
+import VoteHistory from "./VoteHistory"
 
 const TABS = [
   { id: "score",         label: "Score" },
@@ -242,13 +243,7 @@ export default function PoliticianDetail({ result, activeTab, setActiveTab }) {
       )}
 
       {activeTab === "votes" && (
-        <div>
-          {ap?.votes?.length === 0
-            ? <p style={{ fontSize: 13, color: "#999" }}>Aucun vote disponible</p>
-            : ap?.votes?.map((v, i) => <VoteRow key={i} vote={v} />)
-          }
-          <div style={{ fontSize: 11, color: "#bbb", marginTop: 8 }}>Source : <a href={ap.source} target="_blank" style={{ color: "#999" }}>nosdeputes.fr</a></div>
-        </div>
+        <VoteHistory name={_nom} typeMandat={resultats.indemnites?.type_mandat} />
       )}
 
       {activeTab === "mandats" && (
