@@ -198,8 +198,14 @@ export default function Home() {
           <span style={{ fontSize: 18, fontWeight: 500, color: "#002395" }}>TranspaFrance</span>
         </div>
         <div style={{ display: "flex", gap: 20 }}>
-          {["Les élus", "Affaires judiciaires", "Sources"].map(l => (
-            <span key={l} style={{ fontSize: 16, color: "#666", cursor: "pointer" }}>{l}</span>
+          {[
+            { label: "Les élus",            href: null },
+            { label: "Affaires judiciaires", href: "/affaires" },
+            { label: "Sources",             href: "/sources" },
+          ].map(l => l.href ? (
+            <Link key={l.label} to={l.href} style={{ fontSize: 16, color: "#666", textDecoration: "none" }}>{l.label}</Link>
+          ) : (
+            <span key={l.label} style={{ fontSize: 16, color: "#666", cursor: "default" }}>{l.label}</span>
           ))}
         </div>
         <button
@@ -407,8 +413,9 @@ export default function Home() {
       <footer style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 32px", borderTop: "0.5px solid #e5e5e5" }}>
         <span style={{ fontSize: 12, color: "#aaa" }}>TranspaFrance — données publiques françaises</span>
         <div style={{ display: "flex", gap: 16 }}>
-          {["Sources", "À propos", "Contact"].map(l => (
-            <span key={l} style={{ fontSize: 12, color: "#aaa", cursor: "pointer" }}>{l}</span>
+          <Link to="/sources" style={{ fontSize: 12, color: "#aaa", textDecoration: "none" }}>Sources</Link>
+          {["À propos", "Contact"].map(l => (
+            <span key={l} style={{ fontSize: 12, color: "#aaa", cursor: "default" }}>{l}</span>
           ))}
         </div>
       </footer>
