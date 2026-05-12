@@ -147,11 +147,23 @@ const ELUS = [
   },
 ]
 
+const API = "https://web-production-6c245.up.railway.app"
+
 export default function Home() {
   const navigate  = useNavigate()
   const [query, setQuery]       = useState("")
   const [postal, setPostal]     = useState("")
   const [searchMode, setMode]   = useState("nom")
+  const [stats, setStats]       = useState({
+    deputes: 577, senateurs: 348, elus_avec_affaires: null, total_procedures: null
+  })
+
+  useEffect(() => {
+    fetch(`${API}/stats`)
+      .then(r => r.json())
+      .then(d => setStats(d))
+      .catch(() => {})
+  }, [])
 
   const handleSearch = () => {
     if (searchMode === "nom" && query.trim()) {
@@ -283,14 +295,16 @@ export default function Home() {
       {/* Stats */}
       <div style={{ display: "flex", borderBottom: "0.5px solid #e5e5e5" }}>
         {[
-          { num: "577",  label: "Députés indexés" },
-          { num: "348",  label: "Sénateurs indexés" },
-          { num: "204",  label: "Élus avec affaires" },
-          { num: "313",  label: "Procédures répertoriées" },
-          { num: "100%", label: "Données publiques" },
+          { num: stats.deputes,            label: "Députés indexés" },
+          { num: stats.senateurs,          label: "Sénateurs indexés" },
+          { num: stats.elus_avec_affaires, label: "Élus avec affaires" },
+          { num: stats.total_procedures,   label: "Procédures répertoriées" },
+          { num: "100%",                   label: "Données publiques" },
         ].map((s, i, arr) => (
           <div key={s.label} style={{ flex: 1, padding: "16px 0", textAlign: "center", borderRight: i < arr.length - 1 ? "0.5px solid #e5e5e5" : "none" }}>
-            <div style={{ fontSize: 20, fontWeight: 500, color: "#002395" }}>{s.num}</div>
+            <div style={{ fontSize: 20, fontWeight: 500, color: "#002395" }}>
+              {s.num ?? "—"}
+            </div>
             <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{s.label}</div>
           </div>
         ))}
