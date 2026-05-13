@@ -24,7 +24,6 @@ export default function App() {
   const [result, setResult]       = useState(null)
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState(null)
-  const [activeTab, setActiveTab] = useState("condamnations")
   const [mode, setMode]           = useState("nom")
   const [query, setQuery]         = useState("")
   const [postal, setPostal]       = useState("")
@@ -39,7 +38,6 @@ export default function App() {
     setError(null)
     setResult(null)
     setCpResult(null)
-    setActiveTab("condamnations")
     if (pushState) {
       const url = new URL(window.location)
       url.searchParams.set("name", name)
@@ -186,7 +184,7 @@ export default function App() {
 
         {/* Résultat fiche */}
         {result && !loading && (
-          <PoliticianDetail result={result} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <PoliticianDetail result={result} />
         )}
 
         {/* Résultats code postal */}
