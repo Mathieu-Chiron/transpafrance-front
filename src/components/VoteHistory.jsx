@@ -187,10 +187,26 @@ export default function VoteHistory({ name, typeMandat }) {
 
       {/* Pagination */}
       {pages > 1 && !loading && (
-        <div style={{ display: "flex", gap: 6, alignItems: "center", justifyContent: "center", paddingTop: 8 }}>
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={btnStyle(page > 1)}>←</button>
-          <span style={{ fontSize: 13, color: "#555" }}>Page {page} / {pages}</span>
-          <button onClick={() => setPage(p => Math.min(pages, p + 1))} disabled={page === pages} style={btnStyle(page < pages)}>→</button>
+        <div style={{ display: "flex", gap: 4, alignItems: "center", justifyContent: "center", paddingTop: 8, flexWrap: "wrap" }}>
+          <button onClick={() => setPage(1)} disabled={page === 1} style={btnStyle(page > 1)}>«</button>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={btnStyle(page > 1)}>‹</button>
+          {Array.from({ length: pages }, (_, i) => i + 1)
+            .filter(p => p === 1 || p === pages || Math.abs(p - page) <= 2)
+            .reduce((acc, p, idx, arr) => {
+              if (idx > 0 && p - arr[idx - 1] > 1) acc.push("…")
+              acc.push(p)
+              return acc
+            }, [])
+            .map((p, i) => p === "…"
+              ? <span key={`ellipsis-${i}`} style={{ fontSize: 13, color: "#bbb", padding: "0 4px" }}>…</span>
+              : <button key={p} onClick={() => setPage(p)} style={{
+                  padding: "5px 10px", borderRadius: 8, border: "0.5px solid #ddd", fontSize: 13, cursor: "pointer",
+                  background: p === page ? "#1a1a1a" : "#fff", color: p === page ? "#fff" : "#333",
+                }}>{p}</button>
+            )
+          }
+          <button onClick={() => setPage(p => Math.min(pages, p + 1))} disabled={page === pages} style={btnStyle(page < pages)}>›</button>
+          <button onClick={() => setPage(pages)} disabled={page === pages} style={btnStyle(page < pages)}>»</button>
         </div>
       )}
 
