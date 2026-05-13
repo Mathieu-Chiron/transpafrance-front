@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { BORD_COULEUR } from "../bordCouleur"
 import IndemnitesCard from "./IndemnitesCard"
+import ScoreCard from "./ScoreCard"
 import VoteHistory from "./VoteHistory"
 
 function Section({ title, children }) {
@@ -142,12 +143,13 @@ export default function PoliticianDetail({ result }) {
           )}
         </div>
 
-        {/* Score */}
+        {/* Score résumé */}
         {scoreVal !== null && (
           <div style={{ flexShrink: 0, textAlign: "center" }}>
-            <div style={{ fontSize: 36, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{scoreVal}</div>
-            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>/ 100</div>
-            <div style={{ fontSize: 11, color: "#aaa" }}>Score</div>
+            <div style={{ width: 52, height: 52, borderRadius: "50%", background: scoreVal >= 70 ? "#EAF3DE" : scoreVal >= 40 ? "#FAEEDA" : "#FCEBEB", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontSize: 18, fontWeight: 600, color: scoreColor, lineHeight: 1 }}>{scoreVal}</div>
+              <div style={{ fontSize: 10, color: scoreColor, opacity: 0.7 }}>/100</div>
+            </div>
           </div>
         )}
       </div>
@@ -172,6 +174,13 @@ export default function PoliticianDetail({ result }) {
       <Section title="Indemnités & rémunération">
         <IndemnitesCard indemnites={ind} mandats={md} />
       </Section>
+
+      {/* Score de transparence */}
+      {sc && (
+        <Section title="Indice de transparence">
+          <ScoreCard score={sc} stats={ap} />
+        </Section>
+      )}
 
       {/* Condamnations */}
       <Section title={`Affaires judiciaires${nbCondamnations > 0 ? ` (${nbCondamnations})` : ""}`}>
