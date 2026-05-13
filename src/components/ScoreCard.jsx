@@ -23,17 +23,21 @@ function BarreScore({ pct, couleur }) {
   )
 }
 
-function CritRow({ label, valeur, unite, moyenne, pct, pts, ptsMax, barColor, textColor, note }) {
+function CritRow({ label, valeur, unite, moyenne, pct, pts, ptsMax, barColor, textColor, note, disponible }) {
+  const indisponible = disponible === false
   return (
     <div style={{
       display: "grid", gridTemplateColumns: "180px 1fr 72px",
       alignItems: "center", gap: 12, padding: "11px 0",
       borderBottom: "0.5px solid #f0f0ee",
+      opacity: indisponible ? 0.55 : 1,
     }}>
       <div>
         <div style={{ fontSize: 13, color: "#1a1a1a", marginBottom: 3 }}>{label}</div>
         <div style={{ fontSize: 11 }}>
-          {valeur !== null && valeur !== undefined ? (
+          {indisponible ? (
+            <span style={{ color: "#b35c00", fontStyle: "italic" }}>En attente — 17e législature</span>
+          ) : valeur !== null && valeur !== undefined ? (
             <>
               <span style={{ fontWeight: 600, color: textColor }}>
                 {typeof valeur === "number" ? valeur.toFixed(1) : valeur}
@@ -67,7 +71,7 @@ export default function ScoreCard({ score, stats, defaultOpen = false }) {
 
   if (!score) return null
 
-  const { score: val, partiel, details, source_moyennes, periode_moyennes } = score
+  const { score: val, partiel, details, pts_obtenus, pts_max: ptsMax, periode_moyennes } = score
   const d = details || {}
 
   const couleurScore = val >= 70 ? "#27500A" : val >= 40 ? "#854F0B" : "#A32D2D"
@@ -113,7 +117,7 @@ export default function ScoreCard({ score, stats, defaultOpen = false }) {
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#0a0a0a", marginBottom: 2 }}>
               Indice de transparence
-              {partiel && <span style={{ fontSize: 11, fontWeight: 400, color: "#aaa", marginLeft: 8 }}>· partiel</span>}
+              {partiel && <span style={{ fontSize: 11, fontWeight: 400, color: "#b35c00", marginLeft: 8, background: "#fdf3e3", padding: "1px 7px", borderRadius: 999 }}>partiel · {pts_obtenus}/{ptsMax} pts</span>}
             </div>
             <div style={{ fontSize: 12, fontWeight: 500, color: couleurScore }}>{labelScore}</div>
           </div>
@@ -136,6 +140,7 @@ export default function ScoreCard({ score, stats, defaultOpen = false }) {
             ptsMax={25}
             barColor={STATUT_COLOR[presenceStat].bar}
             textColor={STATUT_COLOR[presenceStat].text}
+            disponible={d.presence?.disponible}
           />
 
           <CritRow
@@ -148,6 +153,7 @@ export default function ScoreCard({ score, stats, defaultOpen = false }) {
             ptsMax={20}
             barColor={STATUT_COLOR[initStat].bar}
             textColor={STATUT_COLOR[initStat].text}
+            disponible={d.initiative?.disponible}
           />
 
           <CritRow
@@ -160,6 +166,7 @@ export default function ScoreCard({ score, stats, defaultOpen = false }) {
             ptsMax={15}
             barColor={STATUT_COLOR[engStat].bar}
             textColor={STATUT_COLOR[engStat].text}
+            disponible={d.engagement?.disponible}
           />
 
           <CritRow
