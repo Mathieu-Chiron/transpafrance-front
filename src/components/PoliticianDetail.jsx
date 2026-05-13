@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { BORD_COULEUR } from "../bordCouleur"
 import IndemnitesCard from "./IndemnitesCard"
 import VoteHistory from "./VoteHistory"
@@ -60,6 +61,7 @@ function Condamnation({ texte }) {
 }
 
 export default function PoliticianDetail({ result }) {
+  const [photoOk, setPhotoOk] = useState(true)
   const { resultats } = result
   const id  = resultats.identite
   const _nom = result.recherche || id?.nom || ""
@@ -99,9 +101,10 @@ export default function PoliticianDetail({ result }) {
       <div style={{ background: "#f7f9ff", border: "1.5px solid #e8edf8", borderRadius: 24, padding: "28px 32px", marginBottom: 32, display: "flex", gap: 24, alignItems: "flex-start" }}>
         {/* Photo */}
         <div style={{ flexShrink: 0 }}>
-          {id.photo
-            ? <img src={id.photo} alt={id.nom} style={{ width: 90, height: 90, borderRadius: "50%", objectFit: "cover", border: "3px solid #fff", boxShadow: "0 2px 12px rgba(0,35,149,0.1)" }} />
-            : <div style={{ width: 90, height: 90, borderRadius: "50%", background: "#EEF4FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 500, color: "#002395" }}>
+          {id.photo && photoOk
+            ? <img src={id.photo} alt={id.nom} onError={() => setPhotoOk(false)}
+                style={{ width: 113, height: 113, borderRadius: "50%", objectFit: "cover", border: "3px solid #fff", boxShadow: "0 2px 12px rgba(0,35,149,0.1)" }} />
+            : <div style={{ width: 113, height: 113, borderRadius: "50%", background: "#EEF4FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34, fontWeight: 500, color: "#002395" }}>
                 {(_nom || "?").split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
               </div>
           }
