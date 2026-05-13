@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import AutocompleteInput from "../components/AutocompleteInput"
 
 const API = "https://web-production-6c245.up.railway.app"
 
@@ -276,12 +277,13 @@ export default function Home() {
           </div>
           <div style={s.searchRow}>
             {mode === "nom" ? (
-              <input
-                style={s.searchInput}
+              <AutocompleteInput
                 value={query}
-                onChange={e => setQuery(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && go()}
-                placeholder="Didier Justice..."
+                onChange={val => setQuery(val)}
+                onSelect={nom => navigate(`/app?name=${encodeURIComponent(nom)}`)}
+                onEnter={go}
+                style={s.searchInput}
+                placeholder="Larcher, Macron..."
               />
             ) : (
               <input

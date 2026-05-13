@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PoliticianDetail from "./components/PoliticianDetail"
 import PoliticiansList from "./components/PoliticiansList"
+import AutocompleteInput from "./components/AutocompleteInput"
 
 const API = "https://web-production-6c245.up.railway.app"
 
@@ -27,11 +28,6 @@ export default function App() {
   const [mode, setMode]           = useState("nom")
   const [query, setQuery]         = useState("")
   const [postal, setPostal]       = useState("")
-
-  // Autocomplete
-  const [suggestions, setSuggestions] = useState([])
-  const [showSugg, setShowSugg]       = useState(false)
-  const debounceRef = useRef(null)
 
   // Résultats code postal
   const [cpResult, setCpResult]   = useState(null)
@@ -89,30 +85,7 @@ export default function App() {
     }
   }
 
-  const handleQueryChange = (val) => {
-    setQuery(val)
-    setShowSugg(false)
-    clearTimeout(debounceRef.current)
-    if (val.trim().length < 3) { setSuggestions([]); return }
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const res  = await fetch(`${API}/search?q=${encodeURIComponent(val.trim())}`)
-        const data = await res.json()
-        setSuggestions(data.resultats || [])
-        setShowSugg(true)
-      } catch { setSuggestions([]) }
-    }, 350)
-  }
-
-  const selectSuggestion = (nom) => {
-    setQuery(nom)
-    setSuggestions([])
-    setShowSugg(false)
-    searchByName(nom)
-  }
-
   const go = () => {
-    setShowSugg(false)
     if (mode === "nom" && query.trim())     searchByName(query.trim())
     if (mode === "postal" && postal.trim()) searchByPostal(postal.trim())
   }
@@ -182,30 +155,14 @@ export default function App() {
           </div>
           <div style={{ ...s.searchRow, position: "relative" }}>
             {mode === "nom" ? (
-              <div style={{ flex: 1, position: "relative" }}>
-                <input style={{ ...s.searchInput, width: "100%", boxSizing: "border-box" }}
-                  value={query}
-                  onChange={e => handleQueryChange(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") go(); if (e.key === "Escape") setShowSugg(false) }}
-                  onBlur={() => setTimeout(() => setShowSugg(false), 150)}
-                  onFocus={() => suggestions.length > 0 && setShowSugg(true)}
-                  placeholder="Larcher, Macron..." />
-                {showSugg && suggestions.length > 0 && (
-                  <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: "#fff", border: "1.5px solid #e8edf8", borderRadius: 14, boxShadow: "0 8px 24px rgba(0,35,149,0.1)", zIndex: 100, overflow: "hidden" }}>
-                    {suggestions.map((s, i) => (
-                      <div key={i} onMouseDown={() => selectSuggestion(s.nom)}
-                        style={{ padding: "10px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: i < suggestions.length - 1 ? "0.5px solid #f0f0f0" : "none" }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#f7f9ff"}
-                        onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
-                        <span style={{ fontSize: 14, color: "#0a0a0a" }}>{s.nom}</span>
-                        <span style={{ fontSize: 11, color: "#aaa", marginLeft: 12, whiteSpace: "nowrap" }}>
-                          {s.type_mandat}{s.departement ? ` · ${s.departement}` : ""}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <AutocompleteInput
+                value={query}
+                onChange={val => setQuery(val)}
+                onSelect={nom => { setQuery(nom); searchByName(nom) }}
+                onEnter={go}
+                style={s.searchInput}
+                placeholder="Larcher, Macron..."
+              />
             ) : (
               <input style={s.searchInput} value={postal}
                 onChange={e => setPostal(e.target.value.replace(/\D/g, "").slice(0, 5))}
