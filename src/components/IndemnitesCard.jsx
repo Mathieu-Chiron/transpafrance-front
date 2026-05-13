@@ -86,9 +86,8 @@ export default function IndemnitesCard({ indemnites, mandats }) {
   const coutTotal   = brut + frais + collabs + bonusMaire  // coût contribuable
 
   const lignes = [
-    { poste: POSTES.brut,    montant: brut },
-    { poste: POSTES.frais,   montant: frais },
-    { poste: POSTES.collabs, montant: collabs },
+    { poste: POSTES.brut,  montant: brut },
+    { poste: POSTES.frais, montant: frais },
   ]
 
   return (
@@ -106,7 +105,7 @@ export default function IndemnitesCard({ indemnites, mandats }) {
         bg="#E6F1FB" textColor="#0C447C" subColor="#4a7ab0" chipBg="#fff" chipBorder="#c2d9f0" chipText="#0C447C"
       />
 
-      {/* Détail */}
+      {/* Détail brut + frais */}
       <div>
         <div style={{ fontSize: 11, color: "#999", textTransform: "uppercase", letterSpacing: 1, margin: "4px 0 6px" }}>
           Détail
@@ -118,11 +117,26 @@ export default function IndemnitesCard({ indemnites, mandats }) {
         </div>
       </div>
 
+      {/* Budget collaborateurs — fond ambre distinct */}
+      <div style={{ background: "#fffbf0", borderRadius: 10, padding: "16px 20px", border: "1.5px solid #fde9b0" }}>
+        <div style={{ fontSize: 11, color: "#BA7517", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+          Budget collaborateurs
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+          <span style={{ fontSize: 28, fontWeight: 700, color: "#7a4a00", lineHeight: 1 }}>{fmt(collabs)}</span>
+          <span style={{ fontSize: 13, color: "#BA7517" }}>/mois</span>
+          <span style={{ fontSize: 12, color: "#BA7517" }}>· {fmt(collabs * 12)}/an</span>
+        </div>
+        <div style={{ fontSize: 12, color: "#9a6200", marginTop: 8, lineHeight: 1.55 }}>
+          {POSTES.collabs.detail}
+        </div>
+      </div>
+
       {/* Ligne 2 : coût total contribuable — fond rouge pâle */}
       <TotalLigne
         label="Coût total pour le contribuable"
         montant={coutTotal}
-        sub={`Inclut ${fmt(collabs)}/mois de budget collaborateurs non perçu directement`}
+        sub={`Indemnités + frais + budget collaborateurs`}
         bg="#FCEBEB" textColor="#791F1F" subColor="#a04040" chipBg="#fff" chipBorder="#f0c5c5" chipText="#791F1F"
       />
 
