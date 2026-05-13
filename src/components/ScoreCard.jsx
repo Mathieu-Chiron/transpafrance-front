@@ -1,149 +1,221 @@
 import { useState } from "react"
 
-export default function ScoreCard({ score }) {
+const MOYENNES = {
+  semaines_presence:       3.34,
+  hemicycle_interventions: 16.84,
+  amendements_proposes:    22.66,
+  questions_ecrites:       2.86,
+}
+
+const STATUT_COLOR = {
+  success: { text: "#27500A", bar: "#3aad5a" },
+  warning: { text: "#854F0B", bar: "#e8a020" },
+  danger:  { text: "#A32D2D", bar: "#ED2939" },
+  normal:  { text: "#002395", bar: "#002395" },
+  blue:    { text: "#002395", bar: "#4a7fd4" },
+}
+
+function BarreScore({ pct, couleur }) {
+  return (
+    <div style={{ height: 7, background: "#e8edf8", borderRadius: 999, overflow: "hidden", flex: 1 }}>
+      <div style={{ height: "100%", width: `${Math.min(pct || 0, 100)}%`, background: couleur, borderRadius: 999, transition: "width 0.4s ease" }} />
+    </div>
+  )
+}
+
+function CritRow({ label, valeur, unite, moyenne, pct, pts, ptsMax, barColor, textColor, note }) {
+  return (
+    <div style={{
+      display: "grid", gridTemplateColumns: "180px 1fr 72px",
+      alignItems: "center", gap: 12, padding: "11px 0",
+      borderBottom: "0.5px solid #f0f0ee",
+    }}>
+      <div>
+        <div style={{ fontSize: 13, color: "#1a1a1a", marginBottom: 3 }}>{label}</div>
+        <div style={{ fontSize: 11 }}>
+          {valeur !== null && valeur !== undefined ? (
+            <>
+              <span style={{ fontWeight: 600, color: textColor }}>
+                {typeof valeur === "number" ? valeur.toFixed(1) : valeur}
+                {unite ? ` ${unite}` : ""}
+              </span>
+              {moyenne !== undefined && (
+                <span style={{ color: "#aaa" }}> · moy. {moyenne}</span>
+              )}
+              {note && (
+                <span style={{ color: "#aaa" }}> · {note}</span>
+              )}
+            </>
+          ) : (
+            <span style={{ color: "#bbb" }}>Données non disponibles</span>
+          )}
+        </div>
+      </div>
+      <BarreScore pct={pct} couleur={barColor} />
+      <div style={{ textAlign: "right" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: textColor }}>
+          {pts !== null && pts !== undefined ? pts : "—"}
+        </div>
+        <div style={{ fontSize: 11, color: "#aaa" }}>/ {ptsMax} pts</div>
+      </div>
+    </div>
+  )
+}
+
+export default function ScoreCard({ score, stats, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen)
+
   if (!score) return null
 
-  const { score: total, pts_obtenus, pts_max, partiel, details, explication, source_moyennes, periode_moyennes } = score
+  const { score: val, partiel, details, source_moyennes, periode_moyennes } = score
+  const d = details || {}
 
-  const scoreColor = total >= 70 ? "#1a7a3c" : total >= 40 ? "#b35c00" : "#c0392b"
-  const scoreBg    = total >= 70 ? "#e6f4ec" : total >= 40 ? "#fdf3e3" : "#fdecea"
+  const couleurScore = val >= 70 ? "#27500A" : val >= 40 ? "#854F0B" : "#A32D2D"
+  const bgScore      = val >= 70 ? "#EAF3DE" : val >= 40 ? "#FAEEDA" : "#FCEBEB"
+  const labelScore   = val >= 70 ? "Bonne transparence" : val >= 40 ? "Transparence partielle" : "Transparence insuffisante"
 
-  const ICONS = {
-    presence:      "🏛️",
-    initiative:    "📜",
-    engagement:    "🎤",
-    condamnations: "⚖️",
-    cumul:         "🔗",
-    hatvp:         "📋",
-  }
+  const sm = stats?.stats_moyennes || {}
 
-  const STATUT_COND = {
-    aucune:   { label: "Aucune condamnation", color: "#1a7a3c", bg: "#e6f4ec" },
-    definitif: { label: "Condamnation définitive", color: "#791F1F", bg: "#FCEBEB" },
-    appel:    { label: "En appel", color: "#7a4a00", bg: "#fdf3e3" },
-    instance: { label: "En 1re instance", color: "#b35c00", bg: "#fdf3e3" },
-  }
+  const presencePct  = d.presence?.pct
+  const presenceVal  = sm.semaines_presence ?? d.presence?.valeur
+  const presenceStat = presencePct >= 60 ? "success" : presencePct >= 30 ? "warning" : "danger"
 
-  const STATUT_CUMUL = {
-    unique:   "Mandat unique",
-    double:   "Double mandat",
-    multiple: "Triple mandat ou plus",
-  }
+  const initPct  = d.initiative?.pct
+  const initVal  = sm.amendements_proposes ?? d.initiative?.valeur
+  const initStat = initPct >= 60 ? "success" : initPct >= 30 ? "warning" : "danger"
 
-  const [showExplication, setShowExplication] = useState(false)
+  const engPct  = d.engagement?.pct
+  const engVal  = sm.hemicycle_interventions ?? d.engagement?.valeur
+  const engStat = engPct >= 60 ? "success" : engPct >= 30 ? "warning" : "danger"
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-      {/* Score global */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 20,
-        background: scoreBg, borderRadius: 12, padding: "20px 24px",
-      }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 48, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{total}</div>
-          <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>/100</div>
+    <div style={{ border: "1.5px solid #e8edf8", borderRadius: 16, overflow: "hidden" }}>
+      {/* Header toggle */}
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "16px 20px", cursor: "pointer",
+          background: open ? "#f7f9ff" : "#fff",
+          borderBottom: open ? "1.5px solid #e8edf8" : "none",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: "50%",
+            background: bgScore, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", flexShrink: 0,
+            border: `2px solid ${couleurScore}22`,
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: couleurScore, lineHeight: 1 }}>{val}</div>
+            <div style={{ fontSize: 10, color: couleurScore, opacity: 0.6 }}>/100</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0a0a0a", marginBottom: 2 }}>
+              Indice de transparence
+              {partiel && <span style={{ fontSize: 11, fontWeight: 400, color: "#aaa", marginLeft: 8 }}>· partiel</span>}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 500, color: couleurScore }}>{labelScore}</div>
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a1a" }}>
-            Score de Transparence
-            {partiel && <span style={{ fontSize: 11, background: "#f0f0ee", color: "#888", padding: "2px 7px", borderRadius: 999, marginLeft: 8, fontWeight: 400 }}>Partiel</span>}
-          </div>
-          <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-            {pts_obtenus} pts obtenus sur {pts_max} pts disponibles
-          </div>
-          <div style={{ fontSize: 11, color: "#999", marginTop: 6 }}>{periode_moyennes}</div>
+        <div style={{ fontSize: 12, color: "#aaa" }}>
+          {open ? "▲ Réduire" : "▼ Voir le détail"}
         </div>
       </div>
 
-      {/* Détails par critère */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {Object.entries(details).map(([key, d]) => {
-          const icon = ICONS[key] || "•"
-          const hasPct = d.pct != null
+      {open && (
+        <div style={{ padding: "4px 20px 16px", background: "#fff" }}>
 
-          let rightContent = null
-          if (key === "condamnations") {
-            const s = STATUT_COND[d.statut] || STATUT_COND.aucune
-            rightContent = (
-              <span style={{ fontSize: 11, background: s.bg, color: s.color, padding: "2px 8px", borderRadius: 999 }}>
-                {s.label}
-              </span>
-            )
-          } else if (key === "cumul") {
-            rightContent = (
-              <span style={{ fontSize: 11, color: "#666" }}>
-                {STATUT_CUMUL[d.statut] || d.statut} ({d.nb_mandats})
-              </span>
-            )
-          } else if (key === "hatvp") {
-            rightContent = d.hatvp_ok && d.url ? (
-              <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: "#1a7a3c", textDecoration: "underline" }}>
-                Déclaration trouvée
-              </a>
-            ) : (
-              <span style={{ fontSize: 11, color: "#c0392b" }}>Non trouvée</span>
-            )
-          } else if (hasPct) {
-            rightContent = (
-              <span style={{ fontSize: 11, color: "#666" }}>
-                {d.valeur} {d.unite} (moy. {d.moyenne_nat})
-              </span>
-            )
-          }
+          <CritRow
+            label="Présence"
+            valeur={presenceVal}
+            unite="sem./mois"
+            moyenne={MOYENNES.semaines_presence}
+            pct={presencePct}
+            pts={d.presence?.pts}
+            ptsMax={25}
+            barColor={STATUT_COLOR[presenceStat].bar}
+            textColor={STATUT_COLOR[presenceStat].text}
+          />
 
-          const ptsColor = d.pts === d.pts_max ? "#1a7a3c" : d.pts > 0 ? "#b35c00" : "#c0392b"
+          <CritRow
+            label="Initiative législative"
+            valeur={initVal}
+            unite="amend./mois"
+            moyenne={MOYENNES.amendements_proposes}
+            pct={initPct}
+            pts={d.initiative?.pts}
+            ptsMax={20}
+            barColor={STATUT_COLOR[initStat].bar}
+            textColor={STATUT_COLOR[initStat].text}
+          />
 
-          return (
-            <div key={key} style={{
-              display: "flex", alignItems: "center", gap: 12,
-              background: "#fafaf8", borderRadius: 8, padding: "10px 14px",
-              border: "0.5px solid #eee",
-            }}>
-              <span style={{ fontSize: 16, width: 22, textAlign: "center" }}>{icon}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: "#1a1a1a" }}>{d.label}</div>
-                {rightContent && <div style={{ marginTop: 2 }}>{rightContent}</div>}
-              </div>
-              {hasPct && (
-                <div style={{ width: 80, height: 5, background: "#e8e8e4", borderRadius: 99, flexShrink: 0 }}>
-                  <div style={{
-                    width: `${Math.min(d.pct, 100)}%`, height: "100%",
-                    background: scoreColor, borderRadius: 99, transition: "width 0.4s"
-                  }} />
-                </div>
-              )}
-              <div style={{ fontSize: 13, fontWeight: 600, color: ptsColor, minWidth: 42, textAlign: "right" }}>
-                {d.pts ?? "—"}/{d.pts_max}
+          <CritRow
+            label="Engagement"
+            valeur={engVal}
+            unite="interv./mois"
+            moyenne={MOYENNES.hemicycle_interventions}
+            pct={engPct}
+            pts={d.engagement?.pts}
+            ptsMax={15}
+            barColor={STATUT_COLOR[engStat].bar}
+            textColor={STATUT_COLOR[engStat].text}
+          />
+
+          <CritRow
+            label="Affaires judiciaires"
+            valeur={d.condamnations?.nb === 0 ? "Aucune" : `${d.condamnations?.nb} procédure${d.condamnations?.nb > 1 ? "s" : ""}`}
+            note={d.condamnations?.statut === "definitif" ? "dont définitif" : d.condamnations?.statut === "appel" ? "dont en appel" : null}
+            pct={d.condamnations?.pts !== undefined ? (d.condamnations.pts / 20) * 100 : 100}
+            pts={d.condamnations?.pts}
+            ptsMax={20}
+            barColor={d.condamnations?.nb === 0 ? STATUT_COLOR.success.bar : STATUT_COLOR.danger.bar}
+            textColor={d.condamnations?.nb === 0 ? STATUT_COLOR.success.text : STATUT_COLOR.danger.text}
+          />
+
+          <CritRow
+            label="Cumul de mandats"
+            valeur={d.cumul?.nb_mandats === 1 ? "Mandat unique" : `${d.cumul?.nb_mandats} mandats`}
+            pct={d.cumul?.pts !== undefined ? (d.cumul.pts / 10) * 100 : 100}
+            pts={d.cumul?.pts}
+            ptsMax={10}
+            barColor={d.cumul?.statut === "unique" ? STATUT_COLOR.success.bar : STATUT_COLOR.warning.bar}
+            textColor={d.cumul?.statut === "unique" ? STATUT_COLOR.success.text : STATUT_COLOR.warning.text}
+          />
+
+          {/* HATVP */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "180px 1fr 72px",
+            alignItems: "center", gap: 12, padding: "11px 0",
+            borderBottom: "0.5px solid #f0f0ee",
+          }}>
+            <div>
+              <div style={{ fontSize: 13, color: "#1a1a1a", marginBottom: 3 }}>Transparence HATVP</div>
+              <div style={{ fontSize: 11 }}>
+                <span style={{ fontWeight: 600, color: d.hatvp?.hatvp_ok ? STATUT_COLOR.success.text : STATUT_COLOR.danger.text }}>
+                  {d.hatvp?.hatvp_ok ? "Déclaration disponible" : "Non trouvée"}
+                </span>
               </div>
             </div>
-          )
-        })}
-      </div>
+            <BarreScore pct={d.hatvp?.hatvp_ok ? 100 : 0} couleur={d.hatvp?.hatvp_ok ? STATUT_COLOR.success.bar : STATUT_COLOR.danger.bar} />
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: d.hatvp?.hatvp_ok ? STATUT_COLOR.success.text : STATUT_COLOR.danger.text }}>
+                {d.hatvp?.pts}
+              </div>
+              <div style={{ fontSize: 11, color: "#aaa" }}>/ 10 pts</div>
+            </div>
+          </div>
 
-      {/* Explication */}
-      <div>
-        <button
-          onClick={() => setShowExplication(v => !v)}
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            fontSize: 12, color: "#888", padding: 0, display: "flex", alignItems: "center", gap: 4,
-          }}
-        >
-          {showExplication ? "▲" : "▼"} Méthodologie
-        </button>
-        {showExplication && (
-          <pre style={{
-            marginTop: 10, fontSize: 11, color: "#555", background: "#f7f7f5",
-            borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap",
-            fontFamily: "system-ui, sans-serif", lineHeight: 1.6, border: "0.5px solid #eee",
-          }}>
-            {explication}
-            {"\n\nSource des moyennes : " + source_moyennes}
-          </pre>
-        )}
-      </div>
+          <div style={{ paddingTop: 12 }}>
+            <div style={{ background: "#fffbf0", borderRadius: 10, padding: "9px 12px", fontSize: 11, color: "#854F0B", lineHeight: 1.6, border: "0.5px solid #fde9b0" }}>
+              {partiel && "⚠️ Score partiel — données d'activité issues de la 16e législature (2022–2024). "}
+              Moyennes calculées sur ~580 députés actifs · {periode_moyennes || "16e législature"} · source{" "}
+              <a href="https://www.nosdeputes.fr" target="_blank" rel="noopener noreferrer" style={{ color: "#854F0B", fontWeight: 500 }}>NosDéputés.fr</a>
+            </div>
+          </div>
 
+        </div>
+      )}
     </div>
   )
 }
