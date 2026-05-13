@@ -2,16 +2,25 @@ import { useState, useRef } from "react"
 
 const API = "https://web-production-6c245.up.railway.app"
 
+const spinnerStyle = {
+  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+  width: 14, height: 14, border: "2px solid #e8edf8", borderTopColor: "#002395",
+  borderRadius: "50%", animation: "ac-spin 0.6s linear infinite", pointerEvents: "none",
+}
+
 export default function AutocompleteInput({ value, onChange, onSelect, onEnter, style, placeholder }) {
   const [suggestions, setSuggestions] = useState([])
   const [show, setShow]               = useState(false)
+  const [loading, setLoading]         = useState(false)
   const debounceRef                   = useRef(null)
 
   const handleChange = (val) => {
     onChange(val)
     setShow(false)
+    setLoading(false)
     clearTimeout(debounceRef.current)
     if (val.trim().length < 3) { setSuggestions([]); return }
+    setLoading(true)
     debounceRef.current = setTimeout(async () => {
       try {
         const res  = await fetch(`${API}/search?q=${encodeURIComponent(val.trim())}`)
@@ -19,6 +28,7 @@ export default function AutocompleteInput({ value, onChange, onSelect, onEnter, 
         setSuggestions(data.resultats || [])
         setShow(true)
       } catch { setSuggestions([]) }
+      finally { setLoading(false) }
     }, 350)
   }
 
@@ -30,6 +40,7 @@ export default function AutocompleteInput({ value, onChange, onSelect, onEnter, 
 
   return (
     <div style={{ position: "relative", flex: 1 }}>
+      <style>{`@keyframes ac-spin { to { transform: translateY(-50%) rotate(360deg) } }`}</style>
       <input
         value={value}
         onChange={e => handleChange(e.target.value)}
@@ -40,6 +51,7 @@ export default function AutocompleteInput({ value, onChange, onSelect, onEnter, 
         placeholder={placeholder || "Larcher, Macron..."}
         style={{ ...style, width: "100%", boxSizing: "border-box" }}
       />
+      {loading && <div style={spinnerStyle} />}
       {show && suggestions.length > 0 && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
