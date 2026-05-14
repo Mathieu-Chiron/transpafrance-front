@@ -11,6 +11,8 @@ const POSTES = {
   frais: {
     label:  "Frais de mandat",
     detail: "Forfait mensuel versé automatiquement, sans obligation de justificatif ni contrôle a posteriori.",
+    note:   "Ces frais sont destinés à couvrir les dépenses en rapport direct avec l'exercice du mandat. Elle s'assimile ainsi à une indemnité de frais professionnels. À ce titre, elle est exonérée d'impôt sur le revenu en application du 1° de l'article 81 du code général des impôts.",
+    noteUrl: "https://www.assemblee-nationale.fr/dyn/deontologie/fiches-pratiques/frais-de-mandat",
   },
   collabs: {
     label:  "Budget collaborateurs",
@@ -63,7 +65,18 @@ function PosteLigne({ poste, montant, last }) {
           {fmt(montant)}<span style={{ fontSize: 11, fontWeight: 400, color: "#999" }}> /mois</span>
         </div>
       </div>
-      <div style={{ fontSize: 11, color: "#888", marginTop: 3, lineHeight: 1.5 }}>{poste.detail}</div>
+      <div style={{ fontSize: 11, color: "#888", marginTop: 3, lineHeight: 1.5 }}>
+        {poste.detail}
+        {poste.note && (
+          <span> {poste.note}{" "}
+            {poste.noteUrl && (
+              <a href={poste.noteUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#378ADD" }}>
+                En savoir plus
+              </a>
+            )}
+          </span>
+        )}
+      </div>
     </div>
   )
 }
