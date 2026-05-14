@@ -61,9 +61,14 @@ function Condamnation({ affaire }) {
         : <div style={{ fontSize: 14, fontWeight: 500, color, marginBottom: 6 }}>{titre}</div>
       }
       {detail && (
-        <div style={{ fontSize: 12, color: isAppel ? "#a00" : isInstance ? "#7a4a00" : "#aaa" }}>{detail}</div>
+        <div style={{ fontSize: 12, color: isAppel ? "#a00" : isInstance ? "#7a4a00" : "#aaa", marginBottom: 4 }}>{detail}</div>
       )}
-      <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 999, display: "inline-block", marginTop: 8, background: badge.bg, color: badge.color }}>
+      {affaire.resume && (
+        <div style={{ fontSize: 13, color: isAppel ? "#c0392b" : isInstance ? "#7a4a00" : "#ddd", lineHeight: 1.5, marginBottom: 8 }}>
+          {affaire.resume}
+        </div>
+      )}
+      <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 999, display: "inline-block", background: badge.bg, color: badge.color }}>
         {badge.label}
       </span>
     </div>
@@ -184,6 +189,7 @@ export default function PoliticianDetail({ result }) {
                     : <span style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500 }}>{titre}</span>
                   }
                   {c.infraction && <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>{c.infraction}</span>}
+                  {c.resume && <div style={{ fontSize: 12, color: "#666", marginTop: 3, lineHeight: 1.4 }}>{c.resume}</div>}
                 </div>
                 <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 999, background: dot.color + "18", color: dot.color, flexShrink: 0, fontWeight: 500 }}>
                   {dot.label}
