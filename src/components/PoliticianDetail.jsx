@@ -180,8 +180,41 @@ export default function PoliticianDetail({ result }) {
 
       {/* Score de transparence — déplié juste sous le hero */}
       {sc && (
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: nbCondamnations > 0 ? 0 : 32 }}>
           <ScoreCard score={sc} stats={ap} defaultOpen />
+        </div>
+      )}
+
+      {/* Affaires judiciaires inline sous le score */}
+      {nbCondamnations > 0 && (
+        <div style={{ border: "1.5px solid #e8edf8", borderTop: "none", borderRadius: "0 0 16px 16px", padding: "12px 20px 16px", marginBottom: 32, background: "#fff" }}>
+          <div style={{ fontSize: 11, letterSpacing: 1.2, color: "#aaa", textTransform: "uppercase", marginBottom: 10 }}>
+            Affaires judiciaires
+          </div>
+          {co.condamnations.map((c, i) => {
+            const statut = (c.statut || "").toLowerCase()
+            const dot = statut === "en appel"      ? { color: "#7c3aed", label: "Appel" }
+                      : statut === "en cassation"  ? { color: "#ea580c", label: "Cassation" }
+                      :                              { color: "#1a1a1a", label: "Définitif" }
+            const titre = (c.affaire || c.description || "").split("|")[0].replace(/\[.*?\]/g, "").trim()
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "7px 0", borderBottom: i < co.condamnations.length - 1 ? "0.5px solid #f0f0ee" : "none" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot.color, flexShrink: 0, marginTop: 5 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {c.url
+                    ? <a href={c.url} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: "#1a1a1a", textDecoration: "none", fontWeight: 500 }}
+                         onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}
+                         onMouseLeave={e => e.currentTarget.style.textDecoration = "none"}>{titre}</a>
+                    : <span style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500 }}>{titre}</span>
+                  }
+                  {c.infraction && <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>{c.infraction}</span>}
+                </div>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 999, background: dot.color + "18", color: dot.color, flexShrink: 0, fontWeight: 500 }}>
+                  {dot.label}
+                </span>
+              </div>
+            )
+          })}
         </div>
       )}
 
