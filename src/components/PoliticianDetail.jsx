@@ -36,32 +36,18 @@ function MandatCard({ mandat, cumul }) {
   )
 }
 
-const SOURCE_BADGE = {
-  "casier-politique.fr": { bg: "#f0f0ee", color: "#555" },
-  "wikidata":             { bg: "#e8f0fe", color: "#1a56a0" },
-  "opensanctions":        { bg: "#fff0e8", color: "#a04010" },
-}
-
 function Condamnation({ affaire }) {
-  const texte   = affaire.description || ""
-  const statut  = affaire.statut || ""
-  const source  = affaire.source || "casier-politique.fr"
-  const url     = affaire.url
-  const date    = affaire.date
-  const type    = affaire.type || "condamnation"
+  const texte  = affaire.description || ""
+  const statut = affaire.statut || ""
+  const url    = affaire.url
 
-  const t = texte.toLowerCase()
-  const isAppel    = statut === "en appel"    || t.includes("appel")
-  const isInstance = statut === "1re instance" || t.includes("instance") || t.includes("cours")
-  const isSanction = type === "sanction"
+  const isAppel    = statut === "en appel"     || texte.toLowerCase().includes("appel")
+  const isInstance = statut === "1re instance" || texte.toLowerCase().includes("instance")
 
   let bg, color, badge
-  if (isSanction)      { bg = "#fff4ec"; color = "#a04010"; badge = { bg: "#ffe4cc", color: "#a04010", label: "Sanction" } }
-  else if (isAppel)    { bg = "#fff0f0"; color = "#c0392b"; badge = { bg: "#ffd0d0", color: "#c0392b", label: "En appel" } }
+  if (isAppel)    { bg = "#fff0f0"; color = "#c0392b"; badge = { bg: "#ffd0d0", color: "#c0392b", label: "En appel" } }
   else if (isInstance) { bg = "#fffbf0"; color = "#7a4a00"; badge = { bg: "#fde9b0", color: "#7a4a00", label: "1re instance" } }
-  else                 { bg = "#1a1a1a"; color = "#fff";    badge = { bg: "#444",    color: "#fff",    label: "Définitif" } }
-
-  const srcStyle = SOURCE_BADGE[source] || { bg: "#f0f0ee", color: "#555" }
+  else            { bg = "#1a1a1a"; color = "#fff";    badge = { bg: "#444",    color: "#fff",    label: "Définitif" } }
 
   const titre  = texte.split("|")[0]
   const detail = texte.split("|").slice(1).join(" · ")
@@ -75,21 +61,11 @@ function Condamnation({ affaire }) {
         : <div style={{ fontSize: 14, fontWeight: 500, color, marginBottom: 6 }}>{titre}</div>
       }
       {detail && (
-        <div style={{ fontSize: 12, color: isAppel ? "#a00" : isInstance ? "#7a4a00" : isSanction ? "#a04010" : "#aaa" }}>
-          {detail}
-        </div>
+        <div style={{ fontSize: 12, color: isAppel ? "#a00" : isInstance ? "#7a4a00" : "#aaa" }}>{detail}</div>
       )}
-      <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 999, background: badge.bg, color: badge.color }}>
-          {badge.label}
-        </span>
-        {date && (
-          <span style={{ fontSize: 11, color: "#aaa" }}>{date}</span>
-        )}
-        <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 999, background: srcStyle.bg, color: srcStyle.color }}>
-          {source}
-        </span>
-      </div>
+      <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 999, display: "inline-block", marginTop: 8, background: badge.bg, color: badge.color }}>
+        {badge.label}
+      </span>
     </div>
   )
 }
@@ -245,16 +221,9 @@ export default function PoliticianDetail({ result }) {
           ? <p style={{ fontSize: 13, color: "#aaa" }}>Aucune condamnation répertoriée sur casier-politique.fr</p>
           : co.condamnations.map((c, i) => <Condamnation key={i} affaire={c} />)
         }
-        {co?.sources_consultees?.length > 0 && (
-          <div style={{ fontSize: 11, color: "#ccc", marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <span>Sources consultées :</span>
-            {co.sources_consultees.map(s => s.url && (
-              <a key={s.nom} href={s.url} target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>
-                {s.nom}{s.nb > 0 ? ` (${s.nb})` : ""}
-              </a>
-            ))}
-          </div>
-        )}
+        <div style={{ fontSize: 11, color: "#ccc", marginTop: 8 }}>
+          Source : <a href={liens.casier} target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>casier-politique.fr</a>
+        </div>
       </Section>
 
       {/* Votes */}
@@ -265,13 +234,11 @@ export default function PoliticianDetail({ result }) {
       {/* Sources */}
       <div style={{ paddingTop: 24, borderTop: "1px solid #f0f0f0", fontSize: 11, color: "#ccc", display: "flex", gap: 14, flexWrap: "wrap" }}>
         <span>Sources :</span>
-        {liens.wikipedia      && <a href={liens.wikipedia}      target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Wikipedia</a>}
-        {liens.nosdeputes     && <a href={liens.nosdeputes}     target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>NosDéputés.fr</a>}
-        {liens.assemblee      && <a href={liens.assemblee}      target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Assemblée nationale</a>}
-        {liens.hatvp          && <a href={liens.hatvp}          target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>HATVP</a>}
-        {liens.casier         && <a href={liens.casier}         target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Casier Politique</a>}
-        {liens.wikidata       && <a href={liens.wikidata}       target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Wikidata</a>}
-        {liens.opensanctions  && <a href={liens.opensanctions}  target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>OpenSanctions</a>}
+        {liens.wikipedia  && <a href={liens.wikipedia}  target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Wikipedia</a>}
+        {liens.nosdeputes && <a href={liens.nosdeputes} target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>NosDéputés.fr</a>}
+        {liens.assemblee  && <a href={liens.assemblee}  target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Assemblée nationale</a>}
+        {liens.hatvp      && <a href={liens.hatvp}      target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>HATVP</a>}
+        {liens.casier     && <a href={liens.casier}     target="_blank" rel="noreferrer" style={{ color: "#aaa" }}>Casier Politique</a>}
       </div>
 
     </div>
